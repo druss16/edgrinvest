@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Investment Dashboard{% endblock %}
+
+{% block navbar %}
+<!-- Clean Fintech Navbar -->
+<nav class="navbar navbar-light bg-white shadow-sm mb-4">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#" style="font-family: 'Oswald', sans-serif; font-size: 1.75rem; color: #000;">
+      EDGR
+    </a>
+    <div class="d-flex align-items-center">
+      <button class="btn btn-outline-primary btn-sm me-2" id="darkModeToggle">🌙 Dark Mode</button>
+      <a href="{% url 'account_logout' %}" class="btn btn-outline-danger btn-sm">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+
+  <!-- Header -->
+  <div class="header d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold">Welcome, <span class="text-primary">{{ user.username }}</span></h1>
+  </div>
+
+  <div class="container-fluid mb-5">
+
+    <!-- Top: Portfolio Value + ROI (LEFT justified) -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-5">
+        <div class="card text-white bg-primary p-4">
+          <div class="small text-uppercase fw-semibold">Total Portfolio Value</div>
+          <div class="display-5 mt-2">${{ balance|floatformat:2|intcomma }}</div>
+          <div class="small mt-2">
+            Initial Investment: <strong>${{ initial_investment_amount|floatformat:2|intcomma }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card p-4" style="background-color: #f8f9fa;">
+          <div class="small text-uppercase fw-semibold">Return on Investment (ROI)</div>
+          <div id="roiCounter" class="display-5 mt-2 {% if roi_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
+            +0.00%
+          </div>
+          <div class="small mt-2">
+            {% if roi_percentage >= 0 %}
+              <strong>Profit</strong>
+            {% else %}
+              <strong>Loss</strong>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Below: Performance Chart + Investment Table -->
+    <div class="row g-4">
+      
+      <!-- Left: Performance Chart -->
+      <div class="col-md-8">
+        <div class="card p-3 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Performance</h5>
+            <div>
+              <button class="btn btn-outline-primary btn-sm me-2">1M</button>
+              <button class="btn btn-outline-primary btn-sm me-2">3M</button>
+              <button class="btn btn-outline-primary btn-sm">1Y</button>
+            </div>
+          </div>
+          <div class="chart-container" style="position: relative; height:400px; width:100%;">
+            <canvas id="performanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Investment Table -->
+      <div class="col-md-4">
+        <div class="card p-3 h-100">
+          <h5 class="mb-3">Investments</h5>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Quarter</th>
+                  <th>Invested</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for investment in investments %}
+                  <tr>
+                    <td>{{ investment.quarter }}</td>
+                    <td>${{ investment.amount_invested|floatformat:2|intcomma }}</td>
+                    <td>${{ investment.current_value|floatformat:2|intcomma }}</td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="3" class="text-center text-muted">No investments found.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- Recent Activity -->
+  <div class="card p-4">
+    <h5 class="mb-3">Recent Activity</h5>
+    <ul class="list-group list-group-flush">
+      {% for investment in investments|slice:":5" %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            {{ investment.quarter }} — {% if investment.profit_loss >= 0 %}Profit{% else %}Loss{% endif %}
+          </div>
+          <span class="{% if investment.profit_loss >= 0 %}text-success{% else %}text-danger{% endif %}">
+            {% if investment.profit_loss >= 0 %}+{% endif %}${{ investment.profit_loss|floatformat:2|intcomma }}
+          </span>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-center text-muted">
+          No recent activity.
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+
+<script>
+Chart.register(window['chartjs-plugin-annotation']);
+
+const ctx = document.getElementById('performanceChart').getContext('2d');
+
+const initialInvestment = {{ initial_investment_amount|floatformat:2 }};
+const labels = ['Initial', ...{{ performance_chart_labels|safe }}];
+const dataPoints = [initialInvestment, ...{{ performance_chart_data|safe }}];
+
+const minDataValue = Math.min(...dataPoints);
+const maxDataValue = Math.max(...dataPoints);
+
+// Smart dynamic Y axis
+const performanceChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: 'Portfolio Value',
+      data: dataPoints,
+      fill: true,
+      tension: 0.4,
+      borderColor: '#0d6efd',
+      backgroundColor: 'rgba(13, 110, 253, 0.1)',
+      pointBackgroundColor: dataPoints.map((_, i) => i === 0 ? '#ffc107' : '#0d6efd'),
+      pointBorderColor: dataPoints.map((_, i) => i === 0 ? '#ffc107' : '#0d6efd'),
+      pointRadius: dataPoints.map((_, i) => i === 0 ? 6 : 4),
+      pointHoverRadius: dataPoints.map((_, i) => i === 0 ? 12 : 6),
+      pointHoverBorderWidth: dataPoints.map((_, i) => i === 0 ? 4 : 2),
+      pointHoverBackgroundColor: dataPoints.map((_, i) => i === 0 ? '#ffd54f' : '#0d6efd')
+    }]
+  },
+  options: {
+    responsive: true,
+    layout: { padding: { top: 40 } },
+    animation: { duration: 2000, easing: 'easeOutCubic' },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: context => {
+            let label = context.dataset.label || '';
+            label += context.dataIndex === 0 
+              ? ': Initial Investment - $' + context.parsed.y.toLocaleString()
+              : ': $' + context.parsed.y.toLocaleString();
+            return label;
+          }
+        }
+      },
+      annotation: {
+        annotations: {
+          startLabel: {
+            type: 'label',
+            xValue: labels[0],
+            yValue: dataPoints[0],
+            backgroundColor: 'rgba(255, 193, 7, 0.9)',
+            content: ['Initial Investment'],
+            font: { size: 12, weight: 'bold', family: 'Poppins' },
+            color: '#000',
+            padding: 6,
+            cornerRadius: 6,
+            yAdjust: -40,
+            xAdjust: 20
+          }
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        min: Math.floor(initialInvestment / 1000) * 1000 - 1000,
+        max: Math.ceil(maxDataValue / 1000) * 1000 + 1000,
+        grid: { color: '#eee' },
+        ticks: {
+          padding: 10,
+          stepSize: 1000,
+          callback: value => '$' + value.toLocaleString()
+        }
+      }
+    }
+  }
+});
+
+// Bounce in "Initial Investment" label
+setTimeout(() => {
+  const annotations = document.querySelectorAll('.chartjs-annotation-label');
+  if (annotations.length > 0) {
+    annotations[0].classList.add('bounce-start-label');
+  }
+}, 600);
+
+// Animated ROI Counter
+document.addEventListener('DOMContentLoaded', function() {
+  const roiCounter = document.getElementById('roiCounter');
+  const targetROI = parseFloat("{{ roi_percentage|floatformat:2 }}");
+  let current = 0;
+  const increment = targetROI / 100;
+
+  function updateCounter() {
+    current += increment;
+    if ((increment > 0 && current >= targetROI) || (increment < 0 && current <= targetROI)) {
+      current = targetROI;
+    }
+    roiCounter.textContent = (current > 0 ? '+' : '') + current.toFixed(2) + '%';
+    if (current !== targetROI) {
+      requestAnimationFrame(updateCounter);
+    }
+  }
+  updateCounter();
+});
+</script>
+{% endblock %}

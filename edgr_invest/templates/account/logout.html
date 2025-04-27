@@ -1,0 +1,25 @@
+{% extends "auth.html" %}
+{% block title %}Sign Out{% endblock %}
+{% block heading %}Sign Out{% endblock %}
+{% block subheading %}Are you sure you want to sign out?{% endblock %}
+{% block content %}
+<form method="post" action="{% url 'account_logout' %}">
+    {% csrf_token %}
+    {% if redirect_field_value %}
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+    {% endif %}
+    <div class="d-flex justify-content-between mt-4">
+        <a href="/" class="btn btn-secondary w-100 me-2">Cancel</a>
+        <button type="submit" class="btn btn-primary w-100 ms-2">Sign Out</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block social_login %}
+<!-- Override to hide social login section -->
+{% endblock %}
+
+{% block footer %}
+<!-- Custom footer for logout page -->
+<p>Having trouble? <a href="/contact">Contact Support</a></p>
+{% endblock %}

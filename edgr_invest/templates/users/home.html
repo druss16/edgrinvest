@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Welcome to PredictorEdge{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container main-content">
+    <section class="hero-banner">
+        <div class="container">
+            <h1>Welcome to PredictorEdge</h1>
+            <p class="lead">Your comprehensive source for sports analytics and predictions.</p>
+        </div>
+    </section>
+    
+    <section class="sports-grid row">
+        <div class="col-md-4">
+            <div class="card sport-card">
+                <div class="card-body text-center">
+                    <div class="sport-icon mb-3">⚾</div>
+                    <h3 class="card-title">MLB</h3>
+                    <p class="card-text">Dive into detailed baseball analytics and predictive insights.</p>
+                    <a href="/mlb/" class="btn btn-primary">Explore MLB</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card sport-card">
+                <div class="card-body text-center">
+                    <div class="sport-icon mb-3">🏀</div>
+                    <h3 class="card-title">NBA</h3>
+                    <p class="card-text">In-depth basketball statistics and performance predictions.</p>
+                    <a href="/nba/" class="btn btn-primary">Explore NBA</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card sport-card">
+                <div class="card-body text-center">
+                    <div class="sport-icon mb-3">🏒</div>
+                    <h3 class="card-title">NHL</h3>
+                    <p class="card-text">Comprehensive hockey analytics and game forecasts.</p>
+                    <a href="/nhl/" class="btn btn-primary">Explore NHL</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Inside home.html, e.g., in the stat-card section -->
+<div class="col-md-4">
+    <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <h3>Aggregate Analytics</h3>
+        <p>View combined MLB & NHL performance charts</p>
+        <a href="{% url 'users:home' %}" class="btn btn-primary">View Aggregate Charts</a>
+    </div>
+</div>
+{% endblock %}

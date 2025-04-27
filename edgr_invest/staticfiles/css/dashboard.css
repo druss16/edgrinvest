@@ -1,0 +1,68 @@
+:root {
+  --bg-color: #f8f9fa;
+  --text-color: #212529;
+  --card-bg: #ffffff;
+  --navbar-bg: #0d6efd;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.navbar, .card {
+  background-color: var(--card-bg);
+  border: none;
+  border-radius: 12px;
+}
+
+.navbar-light.bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.display-5 {
+  font-size: 2.5rem;
+}
+
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid #eee;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+/* DARK MODE overrides everything */
+.dark-mode {
+  --bg-color: #121212;
+  --text-color: #e4e4e4;
+  --card-bg: #1f1f1f;
+  --navbar-bg: #1f1f1f;
+}
+
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(5px) scale(1.05);
+  }
+  80% {
+    transform: translateY(-2px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.bounce-start-label {
+  animation: bounceIn 1.2s ease-out forwards;
+}
