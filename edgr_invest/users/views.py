@@ -1,12 +1,11 @@
 # users/views.py
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import Investment, UserProfile
-
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect
-from .forms import InvestmentForm
 from .models import Investment, UserProfile
+from .forms import InvestmentForm
+import json
+from decimal import Decimal
 
 # In users/views.py
 def home(request):
@@ -20,21 +19,6 @@ def home(request):
     # Then pass it to the template
     return render(request, 'users/home.html', context)
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import Investment, UserProfile
-import json
-
-import json
-from decimal import Decimal
-
-import json
-
-from decimal import Decimal
-
-from decimal import Decimal
-
-from decimal import Decimal
 
 @login_required
 def investment_dashboard(request):
