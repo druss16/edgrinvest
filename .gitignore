@@ -1,0 +1,76 @@
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === Python & Django ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.log
+*.pot
+*.pyc
+*.db
+*.sqlite3
+*.sqlite3-journal
+
+# Local settings or secrets
+.env
+.env.*
+secrets.json
+
+# Django specific
+staticfiles/
+media/
+# static/
+static_root/
+
+# Exported or generated CSV/JSON
+/exports/
+*.csv
+*.json
+
+# Django migrations (optional - include if you manually manage them)
+**/migrations/*.pyc
+**/migrations/__pycache__/
+# Optional: uncomment to ignore all migration files
+# **/migrations/*.py
+
+# === Docker ===
+*.pid
+docker-compose.override.yml
+
+# === Celery ===
+celerybeat-schedule
+celerybeat.pid
+
+# === Coverage & Testing ===
+htmlcov/
+.tox/
+.pytest_cache/
+coverage.xml
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+*.cover
+*.py,cover
+
+# === MyPy, Pyre, etc ===
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+
+# === VSCode / IDEs ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# === Jupyter Notebooks ===
+.ipynb_checkpoints/
+
+# === PyPI
+.pypirc
