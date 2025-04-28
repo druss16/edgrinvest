@@ -13,6 +13,9 @@ urlpatterns = [
     path('add-investment/', views.add_investment, name='add_investment'),
     path('investment-list/', views.investment_list, name='investment_list'),
     path('export-investments/', views.export_investments_csv, name='export_investments_csv'),
+    # urls.py
+    path('test/', views.test_view, name='test'),
+    path('set-theme/', views.set_theme, name='set_theme'),
     # path('profile/', views.profile, name='profile'),
     # path('settings/', views.settings, name='settings'),
     # Add more URL patterns as needed

@@ -20,6 +20,24 @@ def home(request):
     return render(request, 'users/home.html', context)
 
 
+def test_view(request):
+    return render(request, 'users/test.html')
+
+
+# yourapp/views.py
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
+@require_POST
+@csrf_exempt  # Use with caution; ideally, ensure CSRF token is sent
+def set_theme(request):
+    data = json.loads(request.body)
+    theme = data.get('theme', 'light')
+    request.session['theme'] = theme
+    return JsonResponse({'status': 'success', 'theme': theme})
+
+
 @login_required
 def investment_dashboard(request):
     # Fetch all investments for this user
@@ -73,6 +91,7 @@ def export_investments_csv(request):
         ])
     
     return response
+
 
 
 @staff_member_required

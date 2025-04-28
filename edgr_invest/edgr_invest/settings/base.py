@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     'users',
     'widget_tweaks',
+    'crispy_forms',
+    'crispy_bootstrap4',
 ]
 
 MIDDLEWARE = [
@@ -69,6 +71,28 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 
 ]
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+ACCOUNT_TEMPLATE_DIR = "account"
+
+ACCOUNT_LOGIN_METHODS = {'username'}
+
+ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_REQUIRED = False
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_LOGOUT_ON_GET = False
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+SITE_ID = 1
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 ROOT_URLCONF = 'edgr_invest.urls'
 
