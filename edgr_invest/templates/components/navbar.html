@@ -16,11 +16,7 @@
       {% else %}
         <a href="{% url 'account_login' %}" 
            class="btn btn-navbar btn-sm me-2 {% if request.resolver_match.url_name == 'account_login' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-          <i class="fas fa-sign-in-alt"></i> Login
-        </a>
-        <a href="{% url 'account_signup' %}" 
-           class="btn btn-navbar btn-sm {% if request.resolver_match.url_name == 'account_signup' %}btn-success{% else %}btn-outline-success{% endif %}">
-          <i class="fas fa-user-plus"></i> Sign Up
+          <i class="fas fa-sign-in-alt"></i> Client Portal
         </a>
       {% endif %}
     </div>
