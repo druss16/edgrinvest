@@ -25,10 +25,10 @@
 }
 
 .navbar-brand:hover {
-    color: #0d6efd !important; /* Primary blue on hover */
+    color: #1a4dab !important; /* Updated Primary blue on hover */
 }
 
-/* Navbar links and buttons */
+/* Navbar links */
 .nav-link {
     color: #212529 !important;
     font-size: 1rem !important;
@@ -40,37 +40,86 @@
     color: #ffd700 !important; /* Gold hover effect */
 }
 
-.btn-outline-primary, .btn-outline-danger {
-    border-radius: 8px !important;
-    padding: 8px 12px !important;
-    font-size: 0.9rem !important;
+/* Navbar Buttons - General Style */
+.btn-navbar {
     font-family: 'Poppins', sans-serif !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
-/* Dark mode overrides */
-.dark-mode .navbar {
-    background-color: #1f1f1f !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+/* Outlined Primary Button */
+.btn-navbar.btn-outline-primary {
+    background-color: transparent !important;
+    color: #1a4dab !important;
+    border: 2px solid #1a4dab !important;
 }
 
-.dark-mode .navbar-light.bg-white {
-    background-color: #1f1f1f !important;
+/* Outlined Danger Button */
+.btn-navbar.btn-outline-danger {
+    background-color: transparent !important;
+    color: #dc3545 !important;
+    border: 2px solid #dc3545 !important;
 }
 
-.dark-mode .navbar-brand {
-    color: #e4e4e4 !important;
+/* Outlined Success Button */
+.btn-navbar.btn-outline-success {
+    background-color: transparent !important;
+    color: #28a745 !important;
+    border: 2px solid #28a745 !important;
 }
 
-.dark-mode .navbar-brand:hover {
-    color: #4dabf7 !important; /* Lighter blue for dark mode */
+/* Hover Glow for Outlined Buttons */
+.btn-navbar.btn-outline-primary:hover {
+    background-color: #1a4dab !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 8px rgba(26, 77, 171, 0.6) !important;
 }
 
-.dark-mode .nav-link {
-    color: #e4e4e4 !important;
+.btn-navbar.btn-outline-danger:hover {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 8px rgba(220, 53, 69, 0.6) !important;
 }
 
-.dark-mode .nav-link:hover {
-    color: #ffd700 !important;
+.btn-navbar.btn-outline-success:hover {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.6) !important;
+}
+
+/* Active Buttons (Filled) */
+.btn-navbar.btn-primary {
+    background-color: #1a4dab !important;
+    border-color: #1a4dab !important;
+    color: #ffffff !important;
+}
+
+.btn-navbar.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+.btn-navbar.btn-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: #ffffff !important;
+}
+
+/* Hover Glow for Active Buttons */
+.btn-navbar.btn-primary:hover,
+.btn-navbar.btn-danger:hover,
+.btn-navbar.btn-success:hover {
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.3), 0 0 12px currentColor;
+    transform: translateY(-1px);
+    transition: all 0.3s ease;
 }
 
 /* Responsive adjustments */
@@ -81,8 +130,28 @@
     .nav-link {
         padding: 6px 10px !important;
     }
-    .btn-outline-primary, .btn-outline-danger {
+    .btn-navbar {
         padding: 6px 10px !important;
-        font-size: 0.8rem !important;
+        font-size: 0.85rem !important;
     }
+}
+
+/* Pulse glow animation */
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 8px rgba(26, 77, 171, 0.5), 0 0 8px rgba(26, 77, 171, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(26, 77, 171, 0.7), 0 0 16px rgba(26, 77, 171, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(26, 77, 171, 0.5), 0 0 8px rgba(26, 77, 171, 0.3);
+  }
+}
+
+/* Apply pulse to active filled buttons */
+.btn-navbar.btn-primary,
+.btn-navbar.btn-danger,
+.btn-navbar.btn-success {
+  animation: pulseGlow 2.5s infinite ease-in-out;
 }

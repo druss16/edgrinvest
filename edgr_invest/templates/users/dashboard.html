@@ -11,27 +11,8 @@
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=8">
 {% endblock %}
 
-{% block navbar %}
-  <!-- Clean Fintech Navbar -->
-  <nav class="navbar navbar-light bg-white shadow-sm mb-4">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="#" style="font-family: 'Oswald', sans-serif; font-size: 1.75rem; color: #000;">
-        EDGR
-      </a>
-      <div class="d-flex align-items-center">
-        <button class="btn btn-outline-primary btn-sm me-2" id="darkModeToggle">
-          {% if request.session.theme == 'dark' %}☀️ Light Mode{% else %}🌙 Dark Mode{% endif %}
-        </button>
-        <a href="{% url 'account_logout' %}" class="btn btn-outline-danger btn-sm">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-      </div>
-    </div>
-  </nav>
-{% endblock %}
-
 {% block content %}
-<div class="container mb-5">
+<div class="container mb-5 dashboard-page">
   <!-- Header -->
   <div class="header d-flex justify-content-between align-items-center mb-4">
     <h1 class="fw-bold">Welcome, <span class="text-primary">{{ user.username }}</span></h1>

@@ -1,65 +1,64 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Welcome to PredictorEdge{% endblock %}
+{% block title %}Welcome to Edgr{% endblock %}
 
 {% block extra_css %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}?v=10">
 {% endblock %}
 
 {% block content %}
 <div class="container main-content">
-    <section class="hero-banner">
-        <div class="container">
-            <h1>Welcome to PredictorEdge</h1>
-            <p class="lead">Your comprehensive source for sports analytics and predictions.</p>
-        </div>
-    </section>
-    
-    <section class="sports-grid row">
-        <div class="col-md-4">
-            <div class="card sport-card">
-                <div class="card-body text-center">
-                    <div class="sport-icon mb-3">⚾</div>
-                    <h3 class="card-title">MLB</h3>
-                    <p class="card-text">Dive into detailed baseball analytics and predictive insights.</p>
-                    <a href="/mlb/" class="btn btn-primary">Explore MLB</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card sport-card">
-                <div class="card-body text-center">
-                    <div class="sport-icon mb-3">🏀</div>
-                    <h3 class="card-title">NBA</h3>
-                    <p class="card-text">In-depth basketball statistics and performance predictions.</p>
-                    <a href="/nba/" class="btn btn-primary">Explore NBA</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card sport-card">
-                <div class="card-body text-center">
-                    <div class="sport-icon mb-3">🏒</div>
-                    <h3 class="card-title">NHL</h3>
-                    <p class="card-text">Comprehensive hockey analytics and game forecasts.</p>
-                    <a href="/nhl/" class="btn btn-primary">Explore NHL</a>
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
 
-<!-- Inside home.html, e.g., in the stat-card section -->
-<div class="col-md-4">
-    <div class="stat-card">
-        <div class="stat-icon">📈</div>
-        <h3>Aggregate Analytics</h3>
-        <p>View combined MLB & NHL performance charts</p>
-        <a href="{% url 'users:home' %}" class="btn btn-primary">View Aggregate Charts</a>
-    </div>
+    <!-- Hero Section -->
+    <section class="hero-banner text-center">
+        <div class="container">
+            <h1>Build Wealth Through Sports Analytics</h1>
+            <p class="lead">Invest in a diversified Sports Index Fund powered by predictive analytics and real-time data.</p>
+            <a href="#learn-more" class="btn btn-light btn-lg mt-4">Learn More</a>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="learn-more" class="overview-section">
+        <div class="container">
+            <h2 class="text-center mb-5">Why Choose the Edgr Sports Index Fund?</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="feature-icon mb-6">📊</div>
+                        <h3 class="card-title">Data-Driven Investing</h3>
+                        <p class="card-text">Leverage Edgr’s cutting-edge predictive models to maximize returns across MLB, NBA, and NHL investments.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="feature-icon mb-6">🏆</div>
+                        <h3 class="card-title">Diversified Portfolio</h3>
+                        <p class="card-text">Mitigate risk with a balanced investment spread across top-performing teams, players, and market opportunities.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="feature-icon mb-6">💡</div>
+                        <h3 class="card-title">Expert Insights</h3>
+                        <p class="card-text">Access proprietary sports data and forecasts to inform smarter investment decisions and optimize your portfolio.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Call to Action -->
+    <section class="cta-section text-center mt-5">
+        <div class="container">
+            <h2>Start Investing in Sports Today</h2>
+            <p class="lead mt-3">Join the Edgr Sports Index Fund and build your future through data-driven sports investments.</p>
+            <a href="{% url 'account_signup' %}" class="btn btn-light btn-lg mt-4">Get Started</a>
+        </div>
+    </section>
+
 </div>
 {% endblock %}

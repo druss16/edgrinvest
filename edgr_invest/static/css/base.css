@@ -1,7 +1,7 @@
 /* Base styling */
 :root {
-    --primary: #2196F3;
-    --primary-dark: #1976D2;
+    --primary: #1A4DB4; /* Darker royal blue */
+    --primary-dark: #153E91; /* Even darker for hover */
     --secondary: #03A9F4;
     --accent: #FF5722;
     --dark: #121212;
@@ -14,12 +14,14 @@
     --gray-light: #e9ecef;
 }
 
+
 body {
     font-family: 'Montserrat', Arial, sans-serif;
     background-color: #f0f2f5;
     color: #333;
     position: relative;
     min-height: 100vh;
+    padding-bottom: 60px; /* Much smaller, just enough for footer */
 }
 
 /* Mobile-first styles */
@@ -106,24 +108,20 @@ a:hover {
 
 /* Footer Styles */
 .footer-section {
-    background-color: var(--light);
+    background-color: transparent;
     padding: 10px 0;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
 
-.footer-section p {
+.footer-section p, .footer-section .btn-link {
     margin: 0;
-    color: #666;
     font-size: 0.9rem;
-    display: inline;
-    margin-right: 15px;
+    color: #6c757d;
+}
+.footer-section .btn-link:hover {
+    text-decoration: underline;
 }
 
-.footer-section .btn-link {
-    color: #007bff;
-    text-decoration: none;
-    font-size: 0.9rem;
-}
 
 .footer-section .btn-link:hover {
     text-decoration: underline;
@@ -277,10 +275,6 @@ a:hover {
 
     .table th, .table td {
         padding: 12px;
-    }
-
-    body {
-        padding-bottom: 400px;
     }
 
     .card-title {

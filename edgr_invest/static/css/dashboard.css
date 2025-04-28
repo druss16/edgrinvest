@@ -18,7 +18,7 @@ body {
 }
 
 /* Navbar styles (minimal, as navbar.css handles most) */
-.navbar {
+.dashboard-page .navbar {
     background-color: var(--card-bg) !important;
     border: none !important;
     border-radius: 12px !important;
@@ -26,6 +26,7 @@ body {
     margin-bottom: 20px !important;
     padding: 15px !important;
 }
+
 
 .navbar-light.bg-white {
     background-color: var(--card-bg) !important;
@@ -95,11 +96,11 @@ h1, h5 {
 }
 
 /* Button styles */
-.btn-outline-primary, .btn-outline-danger {
-    border-radius: 8px !important;
-    padding: 8px 12px !important;
-    font-size: 0.9rem !important;
-    transition: background-color 0.3s ease, color 0.3s ease;
+.dashboard-page .btn-outline-primary,
+.dashboard-page .btn-outline-danger {
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
 }
 
 /* Header and container adjustments */
