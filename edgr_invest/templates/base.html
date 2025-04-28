@@ -16,14 +16,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet" />
 
   <!-- Custom CSS with cache-busting -->
-  <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1">
-  <link rel="stylesheet" href="{% static 'css/navbar.css' %}?v=1">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}?v=5">
+  <link rel="stylesheet" href="{% static 'css/navbar.css' %}?v=5">
 
   {% block extra_css %}{% endblock %}
 </head>
-<body class="{% if request.session.theme == 'dark' %}dark-mode{% endif %} test-body">
-  <!-- Test element to verify CSS -->
-
+<body class="{% if request.session.theme == 'dark' %}dark-mode{% endif %}">
   {% block navbar %}
   <!-- Default Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">

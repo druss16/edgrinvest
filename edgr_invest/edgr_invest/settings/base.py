@@ -20,8 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-a_9(krd5l$#t8pzul0dvn4d_v0ciix*8g2t_t)#dlbctjqk3e^'
-
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -39,6 +38,9 @@ AUTH_USER_MODEL = 'users.CustomUser'
 CSRF_TRUSTED_ORIGINS = [
     'http://0.0.0.0:8080',
     'http://localhost:8080',
+    'https://edgr-invest.onrender.com',
+    'https://edgrinvest.com',
+    'https://www.edgrinvest.com',
 ]
 
 # Application definition
@@ -69,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add Whitenoise middleware
 
 ]
 
