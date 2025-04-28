@@ -5,7 +5,8 @@ FROM python:3.11-slim AS build
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=edgr_invest.settings.prod
-ENV DJANGO_SECRET_KEY=temp-build-key  # Temporary key for collectstatic
+# Temporary key for collectstatic during build
+ENV DJANGO_SECRET_KEY=temp-build-key
 
 # Set working directory
 WORKDIR /app
@@ -25,7 +26,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
-# Collect static files (skip database-dependent processing)
+# Create logs directory for file logging
+RUN mkdir -p /app/logs && chmod -R 775 /app/logs
+
+# Collect static files
 RUN python manage.py collectstatic --noinput --no-post-process
 
 # Production stage
@@ -54,6 +58,9 @@ RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=build /usr/local/bin/gunicorn /usr/local/bin/gunicorn
 COPY --from=build /app /app
+
+# Set permissions for logs directory
+RUN chown -R appuser:appgroup /app/logs
 
 # Copy entrypoint
 COPY entrypoint.sh /app/entrypoint.sh
