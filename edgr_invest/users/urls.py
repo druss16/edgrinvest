@@ -16,6 +16,8 @@ urlpatterns = [
     # urls.py
     path('test/', views.test_view, name='test'),
     path('set-theme/', views.set_theme, name='set_theme'),
+    path('join-waitlist/', views.join_waitlist, name='join_waitlist'),
+    path('thank-you/', views.waitlist_thankyou, name='waitlist_thankyou'),
     # path('profile/', views.profile, name='profile'),
     # path('settings/', views.settings, name='settings'),
     # Add more URL patterns as needed

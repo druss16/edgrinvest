@@ -9,6 +9,17 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
+class WaitlistSignup(models.Model):
+    email = models.EmailField(unique=True)
+    full_name = models.CharField(max_length=255, blank=True, null=True)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.email
+
+    class Meta:
+        app_label = 'users'
+        db_table = 'waitlist_signup'
 
 class UserProfile(models.Model):
     user_id = models.BigIntegerField(db_index=True, unique=True)

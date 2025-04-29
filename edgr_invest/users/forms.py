@@ -1,6 +1,6 @@
 # users/forms.py
 from django import forms
-from .models import Investment
+from .models import Investment, WaitlistSignup
 
 class InvestmentForm(forms.ModelForm):
     class Meta:
@@ -17,3 +17,13 @@ class InvestmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})  # Bootstrap styling
+
+
+class WaitlistSignupForm(forms.ModelForm):
+    class Meta:
+        model = WaitlistSignup
+        fields = ['full_name', 'email']
+        widgets = {
+            'full_name': forms.TextInput(attrs={'placeholder': 'Full Name', 'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Email Address', 'class': 'form-control'}),
+        }

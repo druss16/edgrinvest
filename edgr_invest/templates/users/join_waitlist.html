@@ -1,0 +1,43 @@
+{% extends "auth.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Join Waitlist{% endblock %}
+
+{% block heading %}Join the EDGR Waitlist{% endblock %}
+{% block subheading %}Be the first to experience cutting-edge investment opportunities{% endblock %}
+
+{% block content %}
+<form method="post" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="form-group mb-3">
+        <label for="{{ form.full_name.id_for_label }}" class="form-label">Full Name</label>
+        {% render_field form.full_name class="form-control" placeholder="Enter your full name" %}
+        {% if form.full_name.errors %}
+            <div class="text-danger small">{{ form.full_name.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+        {% render_field form.email class="form-control" placeholder="Enter your email" %}
+        {% if form.email.errors %}
+            <div class="text-danger small">{{ form.email.errors }}</div>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Join Now</button>
+</form>
+{% endblock %}
+
+{% block footer %}
+<p> <a href="{% url 'users:home' %}">Home</a></p>
+{% endblock %}

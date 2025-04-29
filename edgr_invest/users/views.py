@@ -7,6 +7,10 @@ from .forms import InvestmentForm
 import json
 from decimal import Decimal
 
+from django.core.mail import send_mail
+from django.contrib import messages
+from .forms import WaitlistSignupForm
+
 # In users/views.py
 def home(request):
     # Create a context dictionary
@@ -36,6 +40,35 @@ def set_theme(request):
     theme = data.get('theme', 'light')
     request.session['theme'] = theme
     return JsonResponse({'status': 'success', 'theme': theme})
+
+
+def join_waitlist(request):
+    if request.method == 'POST':
+        form = WaitlistSignupForm(request.POST)
+        if form.is_valid():
+            signup = form.save()
+
+            # Send email notification
+            send_mail(
+                'New Waitlist Signup - EdgrInvest',
+                f'New signup:\n\nName: {signup.full_name}\nEmail: {signup.email}',
+                'no-reply@yourdomain.com',  # FROM email
+                ['youremail@yourdomain.com'],  # TO email (your admin email)
+                fail_silently=False,
+            )
+
+            messages.success(request, 'Thank you for joining the waitlist!')
+            return redirect('users:waitlist_thankyou')
+    else:
+        form = WaitlistSignupForm()
+
+    return render(request, 'users/join_waitlist.html', {'form': form})
+
+
+
+def waitlist_thankyou(request):
+    return render(request, 'users/thankyou.html')
+
 
 
 @login_required
@@ -110,3 +143,5 @@ def add_investment(request):
 def investment_list(request):
     investments = Investment.objects.all().order_by('-quarter')
     return render(request, 'users/investment_list.html', {'investments': investments})
+
+

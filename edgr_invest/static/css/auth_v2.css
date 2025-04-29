@@ -1,10 +1,10 @@
-/* === Edgr Authentication Styles === */
+/* === Edgr Authentication Styles (Dark Royal Blue Version) === */
 
 /* Define color system */
 :root {
-    --primary: #2196F3;
-    --primary-dark: #1976D2;
-    --secondary: #03A9F4;
+    --primary: #0d47a1; /* Dark Royal Blue */
+    --primary-dark: #0b3c91;
+    --secondary: #1976d2; /* Slightly lighter royal blue for gradients */
     --accent: #f4511e;
     --dark: #121212;
     --light: #f8f9fa;
@@ -39,11 +39,12 @@ body {
 
 .auth-logo a {
     font-family: 'Oswald', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--primary);
+    font-size: 2.7rem;
+    font-weight: 800;
+    color: #4285f4;
     text-decoration: none;
 }
+
 
 .auth-logo i {
     margin-right: 0.5rem;
@@ -53,7 +54,7 @@ body {
 .auth-card {
     background-color: #fff;
     border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     animation: fadeInUp 0.6s ease-out both;
     position: relative;
@@ -112,7 +113,7 @@ body {
 
 .auth-card .form-control:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(13, 71, 161, 0.25);
 }
 
 /* Remember me */
@@ -156,7 +157,7 @@ body {
     background-color: var(--primary-dark);
     border-color: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(33, 150, 243, 0.3);
+    box-shadow: 0 6px 18px rgba(13, 71, 161, 0.35);
 }
 
 /* Social login */
@@ -187,7 +188,7 @@ body {
 
 .social-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
 }
 
 .btn-google {
