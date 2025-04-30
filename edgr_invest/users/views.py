@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect
 from .models import Investment, UserProfile
-from .forms import InvestmentForm
+from .forms import InvestmentSummaryForm
 import json
 from decimal import Decimal
 
@@ -115,33 +115,39 @@ def waitlist_thankyou(request):
     return render(request, 'users/thankyou.html')
 
 
+from decimal import Decimal
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from users.models import InvestmentSummary
 
 @login_required
 def investment_dashboard(request):
-    # Fetch all investments for this user
-    investments = Investment.objects.filter(user_id=request.user.id).order_by('-quarter')
+    # Fetch quarterly summaries for the user
+    investment_summaries = InvestmentSummary.objects.filter(user_id=request.user.id).order_by('quarter')
 
-    # Calculate sums from user_investment table
-    total_balance = sum((invest.current_value for invest in investments), Decimal('0.00'))
-    initial_investment = sum((invest.amount_invested for invest in investments), Decimal('0.00'))
-
-    # Calculate ROI
-    if initial_investment > 0:
-        roi_percentage = ((total_balance - initial_investment) / initial_investment) * Decimal('100.0')
-    else:
-        roi_percentage = Decimal('0.0')  # Safe fallback
+    # Totals & metrics
+    total_dividends = sum(
+        (summary.dividend_paid for summary in investment_summaries if summary.rollover_paid == 'paid'),
+        Decimal('0.00')
+    )
+    initial_investment = investment_summaries.first().beginning_balance if investment_summaries else Decimal('0.00')
+    ending_balance = investment_summaries.last().ending_balance if investment_summaries else Decimal('0.00')
+    profit = ending_balance - initial_investment
+    roi_percentage = (profit / initial_investment) * 100 if initial_investment > 0 else Decimal('0.00')
 
     context = {
-        'balance': total_balance,
-        'available_balance': total_balance,  # You can adjust this if needed
-        'pending_bets': Decimal('0.0'),       # Not using now unless you track it
-        'investments': investments,
+        'user': request.user,
+        'investment_summaries': investment_summaries,
+        'balance': ending_balance,
         'initial_investment_amount': initial_investment,
+        'total_dividends': total_dividends,
+        'profit': profit,
         'roi_percentage': roi_percentage,
-        'performance_chart_labels': [invest.quarter for invest in investments],
-        'performance_chart_data': [float(invest.current_value) for invest in investments],
+        'performance_chart_labels': [s.quarter for s in investment_summaries],
+        'performance_chart_data': [float(s.ending_balance) for s in investment_summaries],
     }
     return render(request, 'users/dashboard.html', context)
+
 
 @login_required
 def export_investments_csv(request):
@@ -197,3 +203,36 @@ def investment_list(request):
     })
 
 
+# users/views.py
+@staff_member_required
+def add_investment_summary(request):
+    form = InvestmentSummaryForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('users:investment_dashboard')
+    return render(request, 'users/add_investment_summary.html', {'form': form})
+
+
+# users/views.py
+from django.http import JsonResponse
+from users.models import InvestmentSummary
+
+from django.http import JsonResponse
+from users.models import InvestmentSummary
+
+def get_user_summaries(request, user_id):
+    summaries = InvestmentSummary.objects.filter(user_id=user_id).order_by('quarter')
+    data = []
+
+    for s in summaries:
+        data.append({
+            'quarter': s.quarter,
+            'beg_bal': float(s.beginning_balance),
+            'div_pct': float(s.dividend_percent),
+            'div_amt': float(s.dividend_amount),
+            'rollover_paid': s.rollover_paid,
+            'dividend_paid': s.dividend_paid,
+            'end_bal': float(s.ending_balance),
+        })
+
+    return JsonResponse({'summaries': data})

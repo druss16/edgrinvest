@@ -6,6 +6,8 @@ from .models import Investment, WaitlistSignup
 from django import forms
 from django.contrib.auth import get_user_model
 from users.models import Investment, CustomUser  # Make sure this is your user model
+from django import forms
+from users.models import InvestmentSummary, CustomUser
 
 
 CustomUser = get_user_model()
@@ -45,28 +47,85 @@ class ChangePasswordForm(forms.Form):
         return cleaned_data
 
 
-class InvestmentForm(forms.ModelForm):
+# class InvestmentForm(forms.ModelForm):
+#     user = forms.ModelChoiceField(
+#         queryset=CustomUser.objects.all(),
+#         label="User (Email)",
+#         widget=forms.Select(attrs={'class': 'form-control'}),
+#         to_field_name='id'
+#     )
+
+#     class Meta:
+#         model = Investment
+#         fields = ['user', 'amount_invested', 'current_value', 'quarter', 'start_date']
+#         widgets = {
+#             'start_date': forms.DateInput(attrs={'type': 'date'}),
+#             'quarter': forms.TextInput(attrs={'placeholder': 'e.g., Q1-25'}),
+#             'amount_invested': forms.NumberInput(attrs={'step': '0.01'}),
+#             'current_value': forms.NumberInput(attrs={'step': '0.01'}),
+#         }
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         for field in self.fields.values():
+#             field.widget.attrs.update({'class': 'form-control'})
+
+#     def save(self, commit=True):
+#         instance = super().save(commit=False)
+#         instance.user_id = self.cleaned_data['user'].id
+#         if commit:
+#             instance.save()
+#         return instance
+
+# users/forms.py
+
+# users/forms.py
+
+class InvestmentSummaryForm(forms.ModelForm):
     user = forms.ModelChoiceField(
         queryset=CustomUser.objects.all(),
         label="User (Email)",
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        to_field_name='id'
+        to_field_name='id',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    dividend_paid = forms.DecimalField(
+        label="Dividend Paid ($)",
+        required=False,
+        initial=0.00,
+        decimal_places=2,
+        max_digits=12,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '0.01',
+            'placeholder': 'e.g., 250.00'
+        })
     )
 
     class Meta:
-        model = Investment
-        fields = ['user', 'amount_invested', 'current_value', 'quarter', 'start_date']
+        model = InvestmentSummary
+        fields = [
+            'user', 'quarter', 'beginning_balance',
+            'dividend_percent', 'dividend_amount',
+            'rollover_paid', 'dividend_paid',
+            'ending_balance'
+        ]
         widgets = {
-            'start_date': forms.DateInput(attrs={'type': 'date'}),
-            'quarter': forms.TextInput(attrs={'placeholder': 'e.g., Q1-25'}),
-            'amount_invested': forms.NumberInput(attrs={'step': '0.01'}),
-            'current_value': forms.NumberInput(attrs={'step': '0.01'}),
+            'quarter': forms.TextInput(attrs={'placeholder': 'e.g., Q2-25'}),
+            'beginning_balance': forms.NumberInput(attrs={'step': '0.01'}),
+            'dividend_percent': forms.NumberInput(attrs={'step': '0.01'}),
+            'dividend_amount': forms.NumberInput(attrs={'step': '0.01'}),
+            'rollover_paid': forms.Select(choices=[
+                ('rollover', 'Rollover'),
+                ('paid', 'Paid')
+            ]),
+            'ending_balance': forms.NumberInput(attrs={'step': '0.01'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})
+            field.widget.attrs.setdefault('class', 'form-control')
 
     def save(self, commit=True):
         instance = super().save(commit=False)

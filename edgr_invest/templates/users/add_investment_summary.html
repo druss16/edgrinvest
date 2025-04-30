@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Investment Summary</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f6f5;
+            padding: 30px;
+        }
+        .form-section, .history-section {
+            background: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1, h5 {
+            color: #0d47a1;
+        }
+        label {
+            font-weight: 600;
+        }
+        .btn-primary {
+            background-color: #0d47a1;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0b3c91;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #0d47a1;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            color: #0b3c91;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center mb-4">Add Investment Summary</h1>
+
+    <div class="row g-4">
+        <!-- Left: Form -->
+        <div class="col-md-6 form-section">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="id_user">User (Email)</label>
+                    {{ form.user }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_quarter">Quarter</label>
+                    {{ form.quarter }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_beginning_balance">Beginning Balance</label>
+                    {{ form.beginning_balance }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_dividend_percent">Dividend %</label>
+                    {{ form.dividend_percent }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_dividend_amount">Dividend Amount</label>
+                    {{ form.dividend_amount }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_rollover_paid">Rollover or Paid?</label>
+                    {{ form.rollover_paid }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_dividend_paid">Dividends Paid (if any)</label>
+                    {{ form.dividend_paid }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_ending_balance">Ending Balance</label>
+                    {{ form.ending_balance }}
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Save Summary</button>
+            </form>
+            <a href="{% url 'users:investment_dashboard' %}" class="back-link">← Back to Dashboard</a>
+        </div>
+
+        <!-- Right: Investment History -->
+        <div class="col-md-6 history-section">
+            <h5>Investment History</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Quarter</th>
+                            <th>Beg</th>
+                            <th>Div %</th>
+                            <th>Div</th>
+                            <th>R/P</th>
+                            <th>Paid</th>
+                            <th>End</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-table-body">
+                        <tr><td colspan="7" class="text-muted text-center">Select a user to load history</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for dynamic fetch -->
+<script>
+document.getElementById('id_user').addEventListener('change', function () {
+    const userId = this.value;
+    const tableBody = document.getElementById('summary-table-body');
+    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
+
+    fetch(`/summaries/${userId}/`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.summaries.length) {
+                tableBody.innerHTML = '<tr><td colspan="7" class="text-muted text-center">No data available</td></tr>';
+                return;
+            }
+            tableBody.innerHTML = '';
+            data.summaries.forEach(s => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${s.quarter}</td>
+                        <td>$${s.beg_bal.toFixed(2)}</td>
+                        <td>${s.div_pct.toFixed(2)}%</td>
+                        <td>$${s.div_amt.toFixed(2)}</td>
+                        <td>${s.rollover_paid}</td>
+                        <td>$${parseFloat(s.dividend_paid).toFixed(2)}</td>
+                        <td>$${s.end_bal.toFixed(2)}</td>
+                    </tr>`;
+            });
+
+            // Autofill beginning balance with last end balance
+            const last = data.summaries[data.summaries.length - 1];
+            document.getElementById('id_beginning_balance').value = last.end_bal.toFixed(2);
+        })
+        .catch(err => {
+            console.error(err);
+            tableBody.innerHTML = '<tr><td colspan="7" class="text-danger text-center">Error loading data</td></tr>';
+        });
+});
+</script>
+
+</body>
+</html>
