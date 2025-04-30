@@ -22,7 +22,8 @@
           <div class="small text-uppercase fw-semibold">Total Portfolio Value</div>
           <div class="display-5 mt-2">${{ balance|floatformat:2|intcomma }}</div>
           <div class="small mt-2">Initial Investment: <strong>${{ initial_investment_amount|floatformat:2|intcomma }}</strong></div>
-          <div class="small mt-1">Dividends Paid: <strong>${{ total_dividends|floatformat:2|intcomma }}</strong></div>
+          <div class="small mt-1">Dividend(s) Paid: <strong>${{ dividend_paid|floatformat:2|intcomma }}</strong></div>
+          <div class="small mt-1">Dividend(s) Rollover: <strong>${{ dividend_rollover|floatformat:2|intcomma }}</strong></div>
           <div class="small mt-1">Total Profit: <strong>${{ profit|floatformat:2|intcomma }}</strong></div>
         </div>
       </div>

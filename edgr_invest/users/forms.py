@@ -81,6 +81,12 @@ class ChangePasswordForm(forms.Form):
 
 # users/forms.py
 
+from django import forms
+from users.models import InvestmentSummary, CustomUser
+
+from django import forms
+from users.models import InvestmentSummary, CustomUser
+
 class InvestmentSummaryForm(forms.ModelForm):
     user = forms.ModelChoiceField(
         queryset=CustomUser.objects.all(),
@@ -89,47 +95,58 @@ class InvestmentSummaryForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-    dividend_paid = forms.DecimalField(
-        label="Dividend Paid ($)",
-        required=False,
-        initial=0.00,
-        decimal_places=2,
-        max_digits=12,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'step': '0.01',
-            'placeholder': 'e.g., 250.00'
-        })
-    )
-
     class Meta:
         model = InvestmentSummary
         fields = [
             'user', 'quarter', 'beginning_balance',
             'dividend_percent', 'dividend_amount',
-            'rollover_paid', 'dividend_paid',
-            'ending_balance'
+            'rollover_paid', 'dividend_paid', 'ending_balance'
         ]
         widgets = {
-            'quarter': forms.TextInput(attrs={'placeholder': 'e.g., Q2-25'}),
-            'beginning_balance': forms.NumberInput(attrs={'step': '0.01'}),
-            'dividend_percent': forms.NumberInput(attrs={'step': '0.01'}),
-            'dividend_amount': forms.NumberInput(attrs={'step': '0.01'}),
-            'rollover_paid': forms.Select(choices=[
-                ('rollover', 'Rollover'),
-                ('paid', 'Paid')
-            ]),
-            'ending_balance': forms.NumberInput(attrs={'step': '0.01'}),
+            'quarter': forms.TextInput(attrs={
+                'placeholder': 'e.g., Q2-25',
+                'class': 'form-control'
+            }),
+            'beginning_balance': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control'
+            }),
+            'dividend_percent': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control'
+            }),
+            'dividend_amount': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control'
+            }),
+            'rollover_paid': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control',
+                'placeholder': 'e.g., 250.00'
+            }),
+            'dividend_paid': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control',
+                'placeholder': 'e.g., 250.00'
+            }),
+            'ending_balance': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Apply fallback Bootstrap class
         for field in self.fields.values():
             field.widget.attrs.setdefault('class', 'form-control')
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         instance.user_id = self.cleaned_data['user'].id
+        # Ensure defaulting to 0.00 if not filled
+        instance.dividend_paid = instance.dividend_paid or 0.00
+        instance.rollover_paid = instance.rollover_paid or 0.00
         if commit:
             instance.save()
         return instance

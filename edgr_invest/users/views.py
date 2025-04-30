@@ -120,19 +120,22 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from users.models import InvestmentSummary
 
+
+from decimal import Decimal
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from users.models import InvestmentSummary
+
 @login_required
 def investment_dashboard(request):
-    # Fetch quarterly summaries for the user
     investment_summaries = InvestmentSummary.objects.filter(user_id=request.user.id).order_by('quarter')
 
-    # Totals & metrics
-    total_dividends = sum(
-        (summary.dividend_paid for summary in investment_summaries if summary.rollover_paid == 'paid'),
-        Decimal('0.00')
-    )
+    dividend_paid = sum((s.dividend_paid for s in investment_summaries), Decimal('0.00'))
+    dividend_rollover = sum((s.rollover_paid for s in investment_summaries), Decimal('0.00'))
+
     initial_investment = investment_summaries.first().beginning_balance if investment_summaries else Decimal('0.00')
     ending_balance = investment_summaries.last().ending_balance if investment_summaries else Decimal('0.00')
-    profit = ending_balance - initial_investment
+    profit = dividend_paid + dividend_rollover
     roi_percentage = (profit / initial_investment) * 100 if initial_investment > 0 else Decimal('0.00')
 
     context = {
@@ -140,13 +143,15 @@ def investment_dashboard(request):
         'investment_summaries': investment_summaries,
         'balance': ending_balance,
         'initial_investment_amount': initial_investment,
-        'total_dividends': total_dividends,
+        'dividend_paid': dividend_paid,
+        'dividend_rollover': dividend_rollover,
         'profit': profit,
         'roi_percentage': roi_percentage,
         'performance_chart_labels': [s.quarter for s in investment_summaries],
         'performance_chart_data': [float(s.ending_balance) for s in investment_summaries],
     }
     return render(request, 'users/dashboard.html', context)
+
 
 
 @login_required
@@ -220,6 +225,9 @@ from users.models import InvestmentSummary
 from django.http import JsonResponse
 from users.models import InvestmentSummary
 
+from django.http import JsonResponse
+from users.models import InvestmentSummary
+
 def get_user_summaries(request, user_id):
     summaries = InvestmentSummary.objects.filter(user_id=user_id).order_by('quarter')
     data = []
@@ -230,8 +238,8 @@ def get_user_summaries(request, user_id):
             'beg_bal': float(s.beginning_balance),
             'div_pct': float(s.dividend_percent),
             'div_amt': float(s.dividend_amount),
-            'rollover_paid': s.rollover_paid,
-            'dividend_paid': s.dividend_paid,
+            'rollover_paid': float(s.rollover_paid),
+            'dividend_paid': float(s.dividend_paid),
             'end_bal': float(s.ending_balance),
         })
 

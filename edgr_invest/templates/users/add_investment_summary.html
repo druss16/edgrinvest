@@ -70,11 +70,11 @@
                     {{ form.dividend_amount }}
                 </div>
                 <div class="form-group mb-3">
-                    <label for="id_rollover_paid">Rollover or Paid?</label>
+                    <label for="id_rollover_paid">Dividend Rollover ($)</label>
                     {{ form.rollover_paid }}
                 </div>
                 <div class="form-group mb-3">
-                    <label for="id_dividend_paid">Dividends Paid (if any)</label>
+                    <label for="id_dividend_paid">Dividend Paid ($)</label>
                     {{ form.dividend_paid }}
                 </div>
                 <div class="form-group mb-3">
@@ -97,7 +97,7 @@
                             <th>Beg</th>
                             <th>Div %</th>
                             <th>Div</th>
-                            <th>R/P</th>
+                            <th>Rollover</th>
                             <th>Paid</th>
                             <th>End</th>
                         </tr>
@@ -133,13 +133,12 @@ document.getElementById('id_user').addEventListener('change', function () {
                         <td>$${s.beg_bal.toFixed(2)}</td>
                         <td>${s.div_pct.toFixed(2)}%</td>
                         <td>$${s.div_amt.toFixed(2)}</td>
-                        <td>${s.rollover_paid}</td>
+                        <td>$${parseFloat(s.rollover_paid).toFixed(2)}</td>
                         <td>$${parseFloat(s.dividend_paid).toFixed(2)}</td>
                         <td>$${s.end_bal.toFixed(2)}</td>
                     </tr>`;
             });
 
-            // Autofill beginning balance with last end balance
             const last = data.summaries[data.summaries.length - 1];
             document.getElementById('id_beginning_balance').value = last.end_bal.toFixed(2);
         })
