@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Account Settings{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/user_settings.css' %}?v=3">
+{% endblock %}
+
+{% block content %}
+<div class="container main-content d-flex flex-column justify-content-center align-items-center">
+  <div class="settings-card">
+    <h2 class="text-center mb-4">Account Settings</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle me-2"></i> {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" novalidate>
+      {% csrf_token %}
+      <div class="mb-3 text-start">
+        <label class="form-label fw-semibold">Username</label>
+        {% render_field form.username class="form-control" %}
+      </div>
+
+      <div class="mb-3 text-start">
+        <label class="form-label fw-semibold">First Name</label>
+        {% render_field form.first_name class="form-control" %}
+      </div>
+
+      <div class="mb-3 text-start">
+        <label class="form-label fw-semibold">Last Name</label>
+        {% render_field form.last_name class="form-control" %}
+      </div>
+
+      <div class="mb-4 text-start">
+        <label class="form-label fw-semibold">Email</label>
+        {% render_field form.email class="form-control" %}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 mt-3">Save Changes</button>
+    </form>
+
+    <div class="text-center mt-4">
+      <a href="{% url 'users:change_password' %}" class="btn btn-outline-primary">Change Password</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

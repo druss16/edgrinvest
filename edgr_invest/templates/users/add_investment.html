@@ -53,8 +53,8 @@
         <form method="post">
             {% csrf_token %}
             <div class="form-group">
-                <label for="id_user_id">User ID</label>
-                {{ form.user_id }}
+                <label for="id_user">User (Email)</label>
+                {{ form.user }}
             </div>
             <div class="form-group">
                 <label for="id_amount_invested">Amount Invested ($)</label>

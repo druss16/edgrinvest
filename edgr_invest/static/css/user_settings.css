@@ -1,0 +1,103 @@
+/* static/css/user_settings.css */
+
+/* Body gradient */
+body {
+  background: linear-gradient(135deg, #0d0d0d 0%, #1c1c1c 100%) !important;
+  min-height: 100vh;
+}
+
+/* Main settings card */
+.settings-card {
+  background: #ffffff;
+  padding: 3rem 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  width: 100%;
+  margin: 60px auto;
+  text-align: center;
+  animation: slideUpCard 1s ease forwards;
+}
+
+/* Title */
+.settings-card h2 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  color: #0d47a1;
+  margin-bottom: 1.5rem;
+}
+
+/* Form fields */
+form {
+  width: 100%;
+}
+
+form p {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-top: 0.5rem;
+  border: 1px solid #ccd1d9;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+input:focus, textarea:focus {
+  border-color: #0d47a1;
+  box-shadow: 0 0 8px rgba(13, 71, 161, 0.3);
+  outline: none;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #0d47a1;
+  border-color: #0d47a1;
+  font-weight: 600;
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.btn-primary:hover {
+  background-color: #0b3c91;
+  border-color: #0b3c91;
+  box-shadow: 0 6px 18px rgba(13, 71, 161, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+  font-weight: 600;
+  border-width: 2px;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d47a1;
+  color: #ffffff;
+  border-color: #0d47a1;
+}
+
+/* Success Alert */
+.alert-success {
+  background-color: #0d47a1;
+  color: #ffffff;
+  border: none;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alert-success .btn-close {
+  filter: invert(1);
+}
+
+/* Animation */
+@keyframes slideUpCard {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

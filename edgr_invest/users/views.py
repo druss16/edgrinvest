@@ -28,6 +28,51 @@ def test_view(request):
     return render(request, 'users/test.html')
 
 
+# users/views.py
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .forms import UserSettingsForm
+from django.contrib.auth import update_session_auth_hash
+
+
+@login_required
+def user_settings(request):
+    user = request.user
+    if request.method == 'POST':
+        form = UserSettingsForm(request.POST, instance=user)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # <- Keeps user logged in
+            messages.success(request, "Your settings have been updated.")
+            return redirect('users:home')  # Redirect wherever you want
+
+    else:
+        form = UserSettingsForm(instance=user)
+
+    return render(request, 'users/user_settings.html', {'form': form})
+
+
+# users/views.py
+from .forms import ChangePasswordForm
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.user, request.POST)
+        if form.is_valid():
+            new_password = form.cleaned_data.get('new_password')
+            request.user.set_password(new_password)
+            request.user.save()
+            messages.success(request, 'Password changed successfully. Please log in again.')
+            return redirect('account_login')
+    else:
+        form = ChangePasswordForm(request.user)
+
+    return render(request, 'users/change_password.html', {'form': form})
+
+
+
 # yourapp/views.py
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -139,9 +184,16 @@ def add_investment(request):
     
     return render(request, 'users/add_investment.html', {'form': form})
 
+from django.contrib.auth import get_user_model
+
 @staff_member_required
 def investment_list(request):
     investments = Investment.objects.all().order_by('-quarter')
-    return render(request, 'users/investment_list.html', {'investments': investments})
+    User = get_user_model()
+    user_map = {user.id: user.email for user in User.objects.all()}
+    return render(request, 'users/investment_list.html', {
+        'investments': investments,
+        'user_map': user_map
+    })
 
 

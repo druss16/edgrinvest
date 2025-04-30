@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+
+{% block title %}Investment List{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/investment_list.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="investment-container container">
+    <h1 class="investment-title">All Investments</h1>
+
+    <table class="investment-table table">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Email</th>
+                <th>Quarter</th>
+                <th>Invested ($)</th>
+                <th>Current Value ($)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for investment in investments %}
+            <tr>
+                <td>{{ investment.user_id }}</td>
+                <td class="email-cell">{{ user_map|get_item:investment.user_id }}</td>
+                <td>{{ investment.quarter }}</td>
+                <td>{{ investment.amount_invested|floatformat:2 }}</td>
+                <td>{{ investment.current_value|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center text-muted">No investments found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="text-center mt-4">
+        <a href="{% url 'users:add_investment' %}" class="btn btn-primary">Add New Investment</a>
+    </div>
+</div>
+{% endblock %}

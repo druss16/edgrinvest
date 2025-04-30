@@ -82,13 +82,14 @@ AUTHENTICATION_BACKENDS = [
 
 ACCOUNT_TEMPLATE_DIR = "account"
 
-ACCOUNT_LOGIN_METHODS = {'username'}
+ACCOUNT_LOGIN_METHODS = {'email'}
 
-ACCOUNT_AUTHENTICATION_METHOD = "username"
-ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_REQUIRED = False
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "none"
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = "optional"  # or "mandatory"
 ACCOUNT_LOGOUT_ON_GET = False
 
 LOGIN_REDIRECT_URL = "/"
@@ -100,7 +101,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 ROOT_URLCONF = 'edgr_invest.urls'
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True

@@ -9,6 +9,8 @@ app_name = 'users'  # This creates a namespace for your URLs
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('settings/', views.user_settings, name='user_settings'),
+    path('settings/change-password/', views.change_password, name='change_password'),
     path('dashboard/', views.investment_dashboard, name='investment_dashboard'),
     path('add-investment/', views.add_investment, name='add_investment'),
     path('investment-list/', views.investment_list, name='investment_list'),
