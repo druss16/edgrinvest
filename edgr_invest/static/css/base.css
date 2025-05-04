@@ -346,3 +346,7 @@ a:hover {
         display: none;
     }
 }
+
+.text-primary {
+  color: var(--primary) !important;
+}

@@ -140,6 +140,7 @@ def investment_dashboard(request):
 
     context = {
         'user': request.user,
+        'username': request.user.username.capitalize(),  # 👈 Capitalized version
         'investment_summaries': investment_summaries,
         'balance': ending_balance,
         'initial_investment_amount': initial_investment,
@@ -151,7 +152,6 @@ def investment_dashboard(request):
         'performance_chart_data': [float(s.ending_balance) for s in investment_summaries],
     }
     return render(request, 'users/dashboard.html', context)
-
 
 
 @login_required
