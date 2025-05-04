@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Investment Summary{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="text-center mb-4">Edit Investment Summary</h1>
+  <div class="row g-4">
+    <!-- Left: Form -->
+    <div class="col-md-6 form-section">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group mb-3">
+          <label for="id_user">User (Email)</label>
+          {{ form.user }}
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_quarter">Quarter</label>
+          {{ form.quarter }}
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_beginning_balance">Beginning Balance</label>
+          {{ form.beginning_balance }}
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_dividend_percent">Dividend %</label>
+          {{ form.dividend_percent }}
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_dividend_amount">Dividend Amount</label>
+          {{ form.dividend_amount }}
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_rollover_paid">Dividend Rollover ($)</label>
+          {{ form.rollover_paid }}
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_dividend_paid">Dividend Paid ($)</label>
+          {{ form.dividend_paid }}
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_ending_balance">Ending Balance</label>
+          {{ form.ending_balance }}
+        </div>
+        <button type="submit" class="btn btn-primary">Update Summary</button>
+      </form>
+      <a href="{% url 'users:investment_dashboard' %}" class="back-link">&larr; Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

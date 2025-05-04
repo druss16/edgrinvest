@@ -90,7 +90,6 @@ h1, h5 {
 
 /* Chart container */
 .chart-container {
-    background-color: var(--card-bg) !important;
     border-radius: 8px !important;
     padding: 10px !important;
 }
@@ -172,6 +171,12 @@ h1, h5 {
 .bounce-start-label {
     animation: bounceIn 1.2s ease-out forwards;
 }
+
+/* Force canvas inside chart container to stay black */
+.chart-dark-container canvas {
+    background-color: #000 !important;
+}
+
 
 /* Responsive adjustments */
 @media (max-width: 576px) {

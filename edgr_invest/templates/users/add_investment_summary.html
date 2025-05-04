@@ -49,38 +49,18 @@
         <div class="col-md-6 form-section">
             <form method="post">
                 {% csrf_token %}
-                <div class="form-group mb-3">
-                    <label for="id_user">User (Email)</label>
-                    {{ form.user }}
-                </div>
-                <div class="form-group mb-3">
-                    <label for="id_quarter">Quarter</label>
-                    {{ form.quarter }}
-                </div>
-                <div class="form-group mb-3">
-                    <label for="id_beginning_balance">Beginning Balance</label>
-                    {{ form.beginning_balance }}
-                </div>
-                <div class="form-group mb-3">
-                    <label for="id_dividend_percent">Dividend %</label>
-                    {{ form.dividend_percent }}
-                </div>
-                <div class="form-group mb-3">
-                    <label for="id_dividend_amount">Dividend Amount</label>
-                    {{ form.dividend_amount }}
-                </div>
-                <div class="form-group mb-3">
-                    <label for="id_rollover_paid">Dividend Rollover ($)</label>
-                    {{ form.rollover_paid }}
-                </div>
-                <div class="form-group mb-3">
-                    <label for="id_dividend_paid">Dividend Paid ($)</label>
-                    {{ form.dividend_paid }}
-                </div>
-                <div class="form-group mb-3">
-                    <label for="id_ending_balance">Ending Balance</label>
-                    {{ form.ending_balance }}
-                </div>
+                {% for field in form %}
+                  <div class="form-group mb-3">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                      <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                      <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
                 <button type="submit" class="btn btn-primary mt-2">Save Summary</button>
             </form>
             <a href="{% url 'users:investment_dashboard' %}" class="back-link">← Back to Dashboard</a>
@@ -100,8 +80,10 @@
                             <th>Rollover</th>
                             <th>Paid</th>
                             <th>End</th>
+                            <th>Edit</th> <!-- New column -->
                         </tr>
                     </thead>
+
                     <tbody id="summary-table-body">
                         <tr><td colspan="7" class="text-muted text-center">Select a user to load history</td></tr>
                     </tbody>
@@ -130,17 +112,18 @@ document.getElementById('id_user').addEventListener('change', function () {
                 tableBody.innerHTML += `
                     <tr>
                         <td>${s.quarter}</td>
-                        <td>$${s.beg_bal.toFixed(2)}</td>
-                        <td>${s.div_pct.toFixed(2)}%</td>
-                        <td>$${s.div_amt.toFixed(2)}</td>
+                        <td>$${parseFloat(s.beg_bal).toFixed(2)}</td>
+                        <td>${parseFloat(s.div_pct).toFixed(2)}%</td>
+                        <td>$${parseFloat(s.div_amt).toFixed(2)}</td>
                         <td>$${parseFloat(s.rollover_paid).toFixed(2)}</td>
                         <td>$${parseFloat(s.dividend_paid).toFixed(2)}</td>
-                        <td>$${s.end_bal.toFixed(2)}</td>
+                        <td>$${parseFloat(s.end_bal).toFixed(2)}</td>
+                        <td><a href="/edit-investment-summary/${s.id}/" class="btn btn-sm btn-outline-primary">Edit</a></td>
                     </tr>`;
             });
 
             const last = data.summaries[data.summaries.length - 1];
-            document.getElementById('id_beginning_balance').value = last.end_bal.toFixed(2);
+            document.getElementById('id_beginning_balance').value = parseFloat(last.end_bal).toFixed(2);
         })
         .catch(err => {
             console.error(err);

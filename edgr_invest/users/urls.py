@@ -23,6 +23,9 @@ urlpatterns = [
     path('thank-you/', views.waitlist_thankyou, name='waitlist_thankyou'),
     # users/urls.py
     path('summaries/<int:user_id>/', views.get_user_summaries, name='get_user_summaries'),
+    path('edit-investment-summary/<int:pk>/', views.edit_investment_summary, name='edit_investment_summary'),
+
+
 
     # path('profile/', views.profile, name='profile'),
     # path('settings/', views.settings, name='settings'),

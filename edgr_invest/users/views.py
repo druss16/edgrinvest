@@ -234,6 +234,7 @@ def get_user_summaries(request, user_id):
 
     for s in summaries:
         data.append({
+            'id': s.id,
             'quarter': s.quarter,
             'beg_bal': float(s.beginning_balance),
             'div_pct': float(s.dividend_percent),
@@ -243,4 +244,27 @@ def get_user_summaries(request, user_id):
             'end_bal': float(s.ending_balance),
         })
 
+
     return JsonResponse({'summaries': data})
+
+
+from django.shortcuts import get_object_or_404, redirect
+from .models import InvestmentSummary
+from .forms import InvestmentSummaryForm
+
+@login_required
+def edit_investment_summary(request, pk):
+    summary = get_object_or_404(InvestmentSummary, pk=pk)
+
+    if request.method == 'POST':
+        form = InvestmentSummaryForm(request.POST, instance=summary)
+        if form.is_valid():
+            form.save()
+            return redirect('users:investment_dashboard')  # or wherever you want to go after saving
+    else:
+        form = InvestmentSummaryForm(instance=summary)
+
+    return render(request, 'users/edit_investment_summary.html', {
+        'form': form,
+        'summary': summary,
+    })
