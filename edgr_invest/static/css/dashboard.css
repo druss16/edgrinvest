@@ -221,3 +221,46 @@ h1, h5 {
   background-color: #1e90ff !important;
   color: #fff !important;
 }
+
+
+/* Improve Investment Summary Table Layout */
+.investment-summary-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: #fff;
+}
+
+.investment-summary-card h5 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.investment-summary-card .table thead {
+  background-color: #f5f6f7;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.investment-summary-card .table thead th {
+  font-weight: 600;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border: none;
+}
+
+.investment-summary-card .table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.investment-summary-card .table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.investment-summary-card .table td,
+.investment-summary-card .table th {
+  vertical-align: middle;
+  padding: 0.75rem;
+}

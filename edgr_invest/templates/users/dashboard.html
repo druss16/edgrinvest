@@ -84,46 +84,42 @@
         </div>
       </div>
 
-      <div class="col-12">
-        <div class="card p-3 h-100 mt-4">
-          <h5 class="mb-3">Investment Summary (Quarterly)</h5>
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead class="table-light">
-                <tr>
-                  <th>Quarter</th>
-                  <th>Beg Bal</th>
-                  <th>Div %</th>
-                  <th>Dividend</th>
-                  <th>Rollover</th>
-                  <th>Paid</th>
-                  <th>End Bal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for summary in investment_summaries %}
-                <tr>
-                  <td>{{ summary.quarter }}</td>
-                  <td>${{ summary.beginning_balance|floatformat:2|intcomma }}</td>
-                  <td>{{ summary.dividend_percent|floatformat:2 }}%</td>
-                  <td>${{ summary.dividend_amount|floatformat:2|intcomma }}</td>
-                  <td>${{ summary.rollover_paid|floatformat:2|intcomma }}</td>
-                  <td>${{ summary.dividend_paid|floatformat:2|intcomma }}</td>
-                  <td>${{ summary.ending_balance|floatformat:2|intcomma }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="7" class="text-center text-muted">No summary data available.</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+      <div class="card investment-summary-card p-3 mt-4">
+        <h5 class="mb-3">Investment Summary (Quarterly)</h5>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Quarter</th>
+                <th>Beg Bal</th>
+                <th>Div %</th>
+                <th>Dividend</th>
+                <th>Rollover</th>
+                <th>Paid</th>
+                <th>End Bal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for summary in investment_summaries %}
+              <tr>
+                <td>{{ summary.quarter }}</td>
+                <td>${{ summary.beginning_balance|floatformat:2|intcomma }}</td>
+                <td>{{ summary.dividend_percent|floatformat:2 }}%</td>
+                <td>${{ summary.dividend_amount|floatformat:2|intcomma }}</td>
+                <td>${{ summary.rollover_paid|floatformat:2|intcomma }}</td>
+                <td>${{ summary.dividend_paid|floatformat:2|intcomma }}</td>
+                <td>${{ summary.ending_balance|floatformat:2|intcomma }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center text-muted">No summary data available.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
-  </div>
-</div>
+
 {% endblock %}
 
 
@@ -135,7 +131,7 @@ Chart.register(window['chartjs-plugin-annotation']);
 
 const ctx = document.getElementById('performanceChart').getContext('2d');
 const initialInvestment = {{ initial_investment_amount|floatformat:2 }};
-const labels = ['Initial', ...{{ performance_chart_labels|safe }}];
+const labels = ['Initial Investment', ...{{ performance_chart_labels|safe }}];
 const dataPoints = [initialInvestment, ...{{ performance_chart_data|safe }}];
 
 const performanceChart = new Chart(ctx, {
@@ -149,7 +145,7 @@ const performanceChart = new Chart(ctx, {
       tension: 0.4,
       borderColor: '#00FF66',
       backgroundColor: 'rgba(0, 255, 102, 0.08)',
-      pointRadius: 0,
+      pointRadius: 4,
       pointHoverRadius: 6,
       pointHoverBackgroundColor: '#00FF66',
       pointHoverBorderColor: '#00FF66',
@@ -170,23 +166,32 @@ const performanceChart = new Chart(ctx, {
           label: ctx => `$${ctx.parsed.y.toLocaleString()}`
         }
       },
-      annotation: {
-        annotations: {
-          startLabel: {
-            type: 'label',
-            xValue: labels[0],
-            yValue: dataPoints[0],
-            backgroundColor: 'rgba(0, 255, 102, 0.85)',
-            content: ['Initial'],
-            font: { size: 12, weight: 'bold', family: 'Poppins' },
-            color: '#000',
-            padding: 6,
-            cornerRadius: 4,
-            yAdjust: -30,
-            xAdjust: 15
-          }
-        }
-      }
+      // annotation: {
+      //   annotations: {
+      //     startLabel: {
+      //       type: 'label',
+      //       xValue: labels[0],
+      //       yValue: dataPoints[0],
+      //       backgroundColor: 'rgba(0, 255, 102, 0.85)',
+      //       content: 'Initial Investment', // ✅ Single line text
+      //       font: {
+      //         size: 12,
+      //         weight: 'bold',
+      //         family: 'Poppins'
+      //       },
+      //       color: '#000',
+      //       padding: {
+      //         top: 6,
+      //         bottom: 6,
+      //         left: 12,  // ✅ More horizontal padding
+      //         right: 12
+      //       },
+      //       cornerRadius: 4,
+      //       yAdjust: -35,
+      //       xAdjust: 70
+      //     }
+      //   }
+      // }
     },
     scales: {
       x: {
@@ -194,6 +199,7 @@ const performanceChart = new Chart(ctx, {
         ticks: { color: '#ccc' }
       },
       y: {
+        beginAtZero: true,
         grid: { color: 'rgba(255,255,255,0.1)' },
         ticks: {
           color: '#ccc',
