@@ -126,9 +126,34 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from users.models import InvestmentSummary
 
+from django.db.models import IntegerField, Case, When, Value
+from django.db.models.functions import Substr, Cast, Concat
+
 @login_required
 def investment_dashboard(request):
-    investment_summaries = InvestmentSummary.objects.filter(user_id=request.user.id).order_by('quarter')
+    investment_summaries = (
+        InvestmentSummary.objects
+        .filter(user_id=request.user.id)
+        .annotate(
+            # Get numeric quarter
+            quarter_num=Case(
+                When(quarter__startswith='Q1', then=Value(1)),
+                When(quarter__startswith='Q2', then=Value(2)),
+                When(quarter__startswith='Q3', then=Value(3)),
+                When(quarter__startswith='Q4', then=Value(4)),
+                output_field=IntegerField()
+            ),
+            # Extract 2-digit year and convert to 2000s (or customize if needed)
+            short_year=Cast(Substr('quarter', 4, 2), IntegerField()),
+            year_num=Case(
+                # Support both 2-digit and potential 4-digit logic here if needed later
+                When(quarter__regex=r'^Q[1-4]-\d{2}$', then=Cast(Substr('quarter', 4, 2), IntegerField()) + 2000),
+                default=Value(0),
+                output_field=IntegerField()
+            )
+        )
+        .order_by('year_num', 'quarter_num')
+    )
 
     dividend_paid = sum((s.dividend_paid for s in investment_summaries), Decimal('0.00'))
     dividend_rollover = sum((s.rollover_paid for s in investment_summaries), Decimal('0.00'))
@@ -140,7 +165,7 @@ def investment_dashboard(request):
 
     context = {
         'user': request.user,
-        'username': request.user.username.capitalize(),  # 👈 Capitalized version
+        'username': request.user.username.capitalize(),
         'investment_summaries': investment_summaries,
         'balance': ending_balance,
         'initial_investment_amount': initial_investment,
@@ -152,6 +177,7 @@ def investment_dashboard(request):
         'performance_chart_data': [float(s.ending_balance) for s in investment_summaries],
     }
     return render(request, 'users/dashboard.html', context)
+
 
 
 @login_required
