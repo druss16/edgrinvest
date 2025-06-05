@@ -45,10 +45,10 @@
       <div class="col-md-5">
         <div class="card bg-site-primary p-4">
           <div class="small text-uppercase fw-semibold">Total Portfolio Value</div>
-          <div class="display-5 mt-2">${{ balance|floatformat:2|intcomma }}</div>
+          <div class="display-5 mt-2">${{ total_portfolio_value|floatformat:2|intcomma }}</div>
           <div class="small mt-2">Initial Investment: <strong>${{ initial_investment_amount|floatformat:2|intcomma }}</strong></div>
+          <div class="small mt-1">Unrealized Gain: <strong>${{ unrealized_gain|floatformat:2|intcomma }}</strong></div>
           <div class="small mt-1">Dividend(s) Paid: <strong>${{ dividend_paid|floatformat:2|intcomma }}</strong></div>
-          <div class="small mt-1">Dividend(s) Rollover: <strong>${{ dividend_rollover|floatformat:2|intcomma }}</strong></div>
           <div class="small mt-1">Total Profit: <strong>${{ profit|floatformat:2|intcomma }}</strong></div>
         </div>
       </div>
@@ -69,7 +69,7 @@
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
               <div class="small text-uppercase">Total Account Value</div>
-              <div class="highlight">${{ balance|floatformat:2|intcomma }}</div>
+              <div class="highlight">${{ total_portfolio_value|floatformat:2|intcomma }}</div>
               <div class="subtext">${{ profit|floatformat:2 }} ({{ roi_percentage|floatformat:2 }}%)</div>
             </div>
             <div>
@@ -84,6 +84,21 @@
         </div>
       </div>
 
+      <div class="col-12 mt-5">
+        <div class="chart-dark-container">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="small text-uppercase">Quarterly ROI Growth</div>
+              <div class="highlight">ROI Change %</div>
+              <div class="subtext">Quarter-over-Quarter</div>
+            </div>
+          </div>
+          <div class="chart-container" style="position: relative; height:400px; width:100%;">
+            <canvas id="roiChart"></canvas>
+          </div>
+        </div>
+      </div>
+
       <div class="card investment-summary-card p-3 mt-4">
         <h5 class="mb-3">Investment Summary (Quarterly)</h5>
         <div class="table-responsive">
@@ -94,7 +109,7 @@
                 <th>Beg Bal</th>
                 <th>Div %</th>
                 <th>Dividend</th>
-                <th>Rollover</th>
+                <th>Unrealized</th>
                 <th>Paid</th>
                 <th>End Bal</th>
               </tr>
@@ -106,7 +121,7 @@
                 <td>${{ summary.beginning_balance|floatformat:2|intcomma }}</td>
                 <td>{{ summary.dividend_percent|floatformat:2 }}%</td>
                 <td>${{ summary.dividend_amount|floatformat:2|intcomma }}</td>
-                <td>${{ summary.rollover_paid|floatformat:2|intcomma }}</td>
+                <td>${{ summary.unrealized_gain|floatformat:2|intcomma }}</td>
                 <td>${{ summary.dividend_paid|floatformat:2|intcomma }}</td>
                 <td>${{ summary.ending_balance|floatformat:2|intcomma }}</td>
               </tr>
@@ -119,116 +134,84 @@
           </table>
         </div>
       </div>
-
 {% endblock %}
 
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+
 <script>
 Chart.register(window['chartjs-plugin-annotation']);
 
-const ctx = document.getElementById('performanceChart').getContext('2d');
-const initialInvestment = {{ initial_investment_amount|floatformat:2 }};
-const labels = ['Initial Investment', ...{{ performance_chart_labels|safe }}];
-const dataPoints = [initialInvestment, ...{{ performance_chart_data|safe }}];
+document.addEventListener('DOMContentLoaded', function () {
+  // ==== PERFORMANCE CHART (Total Portfolio Value) ====
+  const ctx = document.getElementById('performanceChart').getContext('2d');
+  const labels = {{ performance_chart_labels|safe }};
+  const dataPoints = {{ performance_chart_data|safe }};
 
-const performanceChart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: labels,
-    datasets: [{
-      label: 'Portfolio Value',
-      data: dataPoints,
-      fill: true,
-      tension: 0.4,
-      borderColor: '#00FF66',
-      backgroundColor: 'rgba(0, 255, 102, 0.08)',
-      pointRadius: 4,
-      pointHoverRadius: 6,
-      pointHoverBackgroundColor: '#00FF66',
-      pointHoverBorderColor: '#00FF66',
-      borderWidth: 2.5,
-    }]
-  },
-  options: {
-    responsive: true,
-    animation: { duration: 1500, easing: 'easeOutCubic' },
-    layout: { padding: { top: 40 } },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#111',
-        titleColor: '#fff',
-        bodyColor: '#00FF66',
-        callbacks: {
-          label: ctx => `$${ctx.parsed.y.toLocaleString()}`
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Total Portfolio Value',
+        data: dataPoints,
+        fill: true,
+        tension: 0.4,
+        borderColor: '#00FF66',
+        backgroundColor: 'rgba(0, 255, 102, 0.08)',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: '#00FF66',
+        pointHoverBorderColor: '#00FF66',
+        borderWidth: 2.5,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 1500, easing: 'easeOutCubic' },
+      layout: { padding: { top: 40 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111',
+          titleColor: '#fff',
+          bodyColor: '#00FF66',
+          callbacks: {
+            label: ctx => `Portfolio Value: $${ctx.parsed.y.toLocaleString()}`
+          }
         }
       },
-      // annotation: {
-      //   annotations: {
-      //     startLabel: {
-      //       type: 'label',
-      //       xValue: labels[0],
-      //       yValue: dataPoints[0],
-      //       backgroundColor: 'rgba(0, 255, 102, 0.85)',
-      //       content: 'Initial Investment', // ✅ Single line text
-      //       font: {
-      //         size: 12,
-      //         weight: 'bold',
-      //         family: 'Poppins'
-      //       },
-      //       color: '#000',
-      //       padding: {
-      //         top: 6,
-      //         bottom: 6,
-      //         left: 12,  // ✅ More horizontal padding
-      //         right: 12
-      //       },
-      //       cornerRadius: 4,
-      //       yAdjust: -35,
-      //       xAdjust: 70
-      //     }
-      //   }
-      // }
-    },
-    scales: {
-      x: {
-        grid: { color: 'rgba(255,255,255,0.1)' },
-        ticks: { color: '#ccc' }
-      },
-      y: {
-        beginAtZero: true,
-        grid: { color: 'rgba(255,255,255,0.1)' },
-        ticks: {
-          color: '#ccc',
-          callback: val => '$' + val.toLocaleString()
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          ticks: { color: '#ccc' }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          ticks: {
+            color: '#ccc',
+            callback: val => '$' + val.toLocaleString()
+          }
         }
       }
-    }
-  },
-  plugins: [{
-    id: 'blackCanvasBackground',
-    beforeDraw: (chart) => {
-      const ctx = chart.canvas.getContext('2d');
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-over';
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, chart.width, chart.height);
-      ctx.restore();
-    }
-  }]
-});
+    },
+    plugins: [{
+      id: 'blackCanvasBackground',
+      beforeDraw: (chart) => {
+        const ctx = chart.canvas.getContext('2d');
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, chart.width, chart.height);
+        ctx.restore();
+      }
+    }]
+  });
 
-setTimeout(() => {
-  const annotations = document.querySelectorAll('.chartjs-annotation-label');
-  if (annotations.length > 0) {
-    annotations[0].classList.add('bounce-start-label');
-  }
-}, 600);
-
-document.addEventListener('DOMContentLoaded', function() {
+  // ==== ROI COUNTER ANIMATION ====
   const roiCounter = document.getElementById('roiCounter');
   const targetROI = parseFloat("{{ roi_percentage|floatformat:2 }}");
   let current = 0;
@@ -244,6 +227,80 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   updateCounter();
+
+  // ==== ROI GROWTH LINE CHART ====
+  const roiCtx = document.getElementById('roiChart').getContext('2d');
+
+  // Parse safe JSON from Django context
+  const roiLabels = JSON.parse('{{ roi_growth_labels|escapejs }}');
+  const roiData = JSON.parse('{{ roi_growth_data|escapejs }}');
+
+  // Debugging output
+  console.log("✅ roiLabels", roiLabels);
+  console.log("✅ roiData", roiData);
+  console.log("✅ Lengths:", roiLabels.length, roiData.length);
+
+
+  new Chart(roiCtx, {
+    type: 'line',
+    data: {
+      labels: roiLabels,
+      datasets: [{
+        label: 'ROI Growth %',
+        data: roiData,
+        fill: true,
+        tension: 0.4,
+        borderColor: '#00FF66',
+        backgroundColor: 'rgba(0, 255, 102, 0.08)',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: '#00FF66',
+        pointHoverBorderColor: '#00FF66',
+        borderWidth: 2.5,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 1500, easing: 'easeOutCubic' },
+      layout: { padding: { top: 40 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111',
+          titleColor: '#fff',
+          bodyColor: '#00FF66',
+          callbacks: {
+            label: ctx => `${ctx.parsed.y.toFixed(2)}%`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          ticks: { color: '#ccc' }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          ticks: {
+            color: '#ccc',
+            callback: val => `${val}%`
+          }
+        }
+      }
+    },
+    plugins: [{
+      id: 'blackCanvasBackground',
+      beforeDraw: (chart) => {
+        const ctx = chart.canvas.getContext('2d');
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, chart.width, chart.height);
+        ctx.restore();
+      }
+    }]
+  });
 });
 </script>
 {% endblock %}

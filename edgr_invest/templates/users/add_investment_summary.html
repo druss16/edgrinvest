@@ -66,39 +66,38 @@
             <a href="{% url 'users:investment_dashboard' %}" class="back-link">← Back to Dashboard</a>
         </div>
 
-<!-- Right: Investment History -->
-<div class="col-md-6 history-section">
-    <h5>Investment History</h5>
-    <div class="table-responsive">
-        <table class="table table-sm table-bordered">
-            <thead>
-                <tr>
-                    <th>Quarter</th>
-                    <th>Beg</th>
-                    <th>Div %</th>
-                    <th>Div</th>
-                    <th>Rollover</th>
-                    <th>Paid</th>
-                    <th>End</th>
-                    <th>Edit</th>
-                </tr>
-            </thead>
-            <tbody id="summary-table-body">
-                <tr>
-                    <td colspan="7" class="text-muted text-center">Select a user to load history</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <!-- Right: Investment History -->
+        <div class="col-md-6 history-section">
+            <h5>Investment History</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Quarter</th>
+                            <th>Beg</th>
+                            <th>Div %</th>
+                            <th>Div</th>
+                            <th>Unrealized</th>
+                            <th>Paid</th>
+                            <th>End</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-table-body">
+                        <tr>
+                            <td colspan="9" class="text-muted text-center">Select a user to load history</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <!-- 🔽 New Summary Section Below Table -->
-    <div id="investment-summary" class="mt-4 p-3 bg-light border rounded">
-        <!-- Summary will be injected here dynamically -->
+            <div id="investment-summary" class="mt-4 p-3 bg-light border rounded">
+                <!-- Summary will be injected here dynamically -->
+            </div>
+        </div>
     </div>
 </div>
 
-
-<!-- JavaScript for dynamic fetch -->
 <script>
 let rolloverManuallyEdited = false;
 
@@ -121,13 +120,13 @@ function compareQuarters(a, b) {
 document.getElementById('id_user').addEventListener('change', function () {
     const userId = this.value;
     const tableBody = document.getElementById('summary-table-body');
-    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9" class="text-center">Loading...</td></tr>';
 
     fetch(`/summaries/${userId}/`)
         .then(res => res.json())
         .then(data => {
             if (!data.summaries.length) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="text-muted text-center">No data available</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="9" class="text-muted text-center">No data available</td></tr>';
                 return;
             }
 
@@ -140,7 +139,7 @@ document.getElementById('id_user').addEventListener('change', function () {
                         <td>$${parseFloat(s.beg_bal).toFixed(2)}</td>
                         <td>${parseFloat(s.div_pct).toFixed(2)}%</td>
                         <td>$${parseFloat(s.div_amt).toFixed(2)}</td>
-                        <td>$${parseFloat(s.rollover_paid).toFixed(2)}</td>
+                        <td>$${parseFloat(s.unrealized_gain).toFixed(2)}</td>
                         <td>$${parseFloat(s.dividend_paid).toFixed(2)}</td>
                         <td>$${parseFloat(s.end_bal).toFixed(2)}</td>
                         <td><a href="/edit-investment-summary/${s.id}/" class="btn btn-sm btn-outline-primary">Edit</a></td>
@@ -149,11 +148,9 @@ document.getElementById('id_user').addEventListener('change', function () {
 
             const last = sorted[sorted.length - 1];
 
-            // Set beginning balance
             const begBalInput = document.getElementById('id_beginning_balance');
             begBalInput.value = parseFloat(last.end_bal).toFixed(2);
 
-            // Set next quarter
             const quarterInput = document.getElementById('id_quarter');
             const [lastQ, lastYear] = last.quarter.split('-');
             const qNum = parseInt(lastQ.replace('Q', ''));
@@ -166,29 +163,27 @@ document.getElementById('id_user').addEventListener('change', function () {
             }
             quarterInput.value = `Q${nextQ}-${String(nextYear).padStart(2, '0')}`;
 
-            // Reset rollover sync
             rolloverManuallyEdited = false;
-
-            // Trigger calculations
             updateDividendCalculations();
 
-            // Summary calculations
             let initialInvestment = 0;
             let totalPaid = 0;
             let totalRolled = 0;
+            let totalUnrealized = 0;
 
             sorted.forEach(s => {
                 const beg = parseFloat(s.beg_bal) || 0;
                 const paid = parseFloat(s.dividend_paid) || 0;
                 const rolled = parseFloat(s.rollover_paid) || 0;
+                const unreal = parseFloat(s.unrealized_gain) || 0;
 
                 if (rolled === 0) initialInvestment += beg;
                 totalPaid += paid;
                 totalRolled += rolled;
+                totalUnrealized += unreal;
             });
 
-            const totalDividends = totalPaid + totalRolled;
-            const profit = totalDividends - initialInvestment;
+            const profit = totalPaid + totalRolled - initialInvestment;
 
             const summaryDiv = document.getElementById('investment-summary');
             summaryDiv.innerHTML = `
@@ -196,13 +191,14 @@ document.getElementById('id_user').addEventListener('change', function () {
                     <strong>Initial Investment:</strong> $${initialInvestment.toFixed(2)}<br>
                     <strong>Dividends Paid:</strong> $${totalPaid.toFixed(2)}<br>
                     <strong>Dividends Rolled Over:</strong> $${totalRolled.toFixed(2)}<br>
+                    <strong>Unrealized Gain:</strong> $${totalUnrealized.toFixed(2)}<br>
                     <strong>Total Profit:</strong> $${profit.toFixed(2)}
                 </div>
             `;
         })
         .catch(err => {
             console.error(err);
-            tableBody.innerHTML = '<tr><td colspan="7" class="text-danger text-center">Error loading data</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9" class="text-danger text-center">Error loading data</td></tr>';
         });
 });
 
@@ -210,7 +206,6 @@ function updateDividendCalculations() {
     const begBalInput = document.getElementById('id_beginning_balance');
     const divPctInput = document.getElementById('id_dividend_percent');
     const divAmtInput = document.getElementById('id_dividend_amount');
-    const rolloverInput = document.getElementById('id_rollover_paid');
     const endBalInput = document.getElementById('id_ending_balance');
 
     const begBal = parseFloat(begBalInput.value) || 0;
@@ -219,11 +214,6 @@ function updateDividendCalculations() {
     const dividendAmount = begBal * (divPct / 100);
     divAmtInput.value = dividendAmount.toFixed(2);
 
-    if (!rolloverManuallyEdited) {
-        rolloverInput.value = dividendAmount.toFixed(2);
-    }
-
-    const rollover = parseFloat(rolloverInput.value) || 0;
     const endBal = begBal + (rollover > 0 ? rollover : 0);
     endBalInput.value = endBal.toFixed(2);
 }
@@ -241,11 +231,8 @@ window.addEventListener('load', () => {
     if (el) el.addEventListener('input', updateDividendCalculations);
 });
 
-document.getElementById('id_rollover_paid').addEventListener('input', () => {
-    rolloverManuallyEdited = true;
-});
-</script>
 
+</script>
 
 </body>
 </html>

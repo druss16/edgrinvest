@@ -129,53 +129,113 @@ from users.models import InvestmentSummary
 from django.db.models import IntegerField, Case, When, Value
 from django.db.models.functions import Substr, Cast, Concat
 
+from django.db.models import IntegerField, Case, When, Value
+from django.db.models.functions import Substr, Cast
+from decimal import Decimal
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from users.models import InvestmentSummary
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import IntegerField, Case, When, Value
+from django.db.models.functions import Substr, Cast
+from django.shortcuts import render
+from decimal import Decimal
+from users.models import InvestmentSummary, InvestmentSummaryDeux
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import InvestmentSummaryDeux
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import InvestmentSummaryDeux
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import InvestmentSummaryDeux
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import InvestmentSummaryDeux
+
+import json
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import InvestmentSummaryDeux
+
+from decimal import Decimal
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import InvestmentSummaryDeux
+
 @login_required
 def investment_dashboard(request):
-    investment_summaries = (
-        InvestmentSummary.objects
-        .filter(user_id=request.user.id)
-        .annotate(
-            # Get numeric quarter
-            quarter_num=Case(
-                When(quarter__startswith='Q1', then=Value(1)),
-                When(quarter__startswith='Q2', then=Value(2)),
-                When(quarter__startswith='Q3', then=Value(3)),
-                When(quarter__startswith='Q4', then=Value(4)),
-                output_field=IntegerField()
-            ),
-            # Extract 2-digit year and convert to 2000s (or customize if needed)
-            short_year=Cast(Substr('quarter', 4, 2), IntegerField()),
-            year_num=Case(
-                # Support both 2-digit and potential 4-digit logic here if needed later
-                When(quarter__regex=r'^Q[1-4]-\d{2}$', then=Cast(Substr('quarter', 4, 2), IntegerField()) + 2000),
-                default=Value(0),
-                output_field=IntegerField()
-            )
-        )
-        .order_by('year_num', 'quarter_num')
-    )
+    summaries = InvestmentSummaryDeux.objects.filter(user_id=request.user.id).order_by('quarter')
 
-    dividend_paid = sum((s.dividend_paid for s in investment_summaries), Decimal('0.00'))
-    dividend_rollover = sum((s.rollover_paid for s in investment_summaries), Decimal('0.00'))
+    initial_investment = Decimal(0)
+    total_dividend_paid = Decimal(0)
+    total_unrealized_gain = Decimal(0)
+    cumulative_profit = Decimal(0)
+    portfolio_value_data = []
+    chart_labels = []
 
-    initial_investment = investment_summaries.first().beginning_balance if investment_summaries else Decimal('0.00')
-    ending_balance = investment_summaries.last().ending_balance if investment_summaries else Decimal('0.00')
-    profit = dividend_paid + dividend_rollover
-    roi_percentage = (profit / initial_investment) * 100 if initial_investment > 0 else Decimal('0.00')
+    for summary in summaries:
+        if summary.dividend_paid == 0:
+            initial_investment += summary.beginning_balance
+
+        total_dividend_paid += summary.dividend_paid
+        total_unrealized_gain += summary.unrealized_gain
+        cumulative_profit = total_dividend_paid + total_unrealized_gain
+        portfolio_value_data.append(float(initial_investment + cumulative_profit))  # Convert to float
+        chart_labels.append(summary.quarter)
+
+    total_profit = total_dividend_paid + total_unrealized_gain
+    total_portfolio_value = initial_investment + total_profit
+    roi_percentage = (total_profit / initial_investment * 100) if initial_investment > 0 else 0
+
+    roi_growth_labels = ['Initial Investment'] + [s.quarter for s in summaries]
+    # roi_growth_data = [0] + [
+    #     float(round(
+    #         ((s.dividend_paid + s.unrealized_gain - s.beginning_balance) / s.beginning_balance * 100)
+    #         if s.beginning_balance > 0 else 0, 2
+    #     )) for s in summaries
+    # ]
+
+    # roi_growth_data = [
+    #     float(round(((s.ending_balance - s.beginning_balance) / s.beginning_balance * 100), 2))
+    #     if s.beginning_balance > 0 else 0
+    #     for s in summaries
+    # ]
+
+    roi_growth_data = [
+        0,  # baseline
+        float(round((total_profit / initial_investment * 100), 2)) if initial_investment > 0 else 0
+    ]
+
+
 
     context = {
-        'user': request.user,
-        'username': request.user.username.capitalize(),
-        'investment_summaries': investment_summaries,
-        'balance': ending_balance,
-        'initial_investment_amount': initial_investment,
-        'dividend_paid': dividend_paid,
-        'dividend_rollover': dividend_rollover,
-        'profit': profit,
-        'roi_percentage': roi_percentage,
-        'performance_chart_labels': [s.quarter for s in investment_summaries],
-        'performance_chart_data': [float(s.ending_balance) for s in investment_summaries],
+        'username': request.user.username,
+        'investment_summaries': summaries,
+        'balance': float(initial_investment + total_profit),
+        'initial_investment_amount': float(initial_investment),
+        'dividend_paid': float(total_dividend_paid),
+        'unrealized_gain': float(total_unrealized_gain),
+        'profit': float(total_profit),
+        'total_portfolio_value': float(total_portfolio_value),
+        'roi_percentage': float(roi_percentage),
+        'performance_chart_labels': ['Initial Investment'] + chart_labels,
+        'performance_chart_data': [float(initial_investment)] + portfolio_value_data,
+        'roi_growth_labels': json.dumps(roi_growth_labels),
+        'roi_growth_data': json.dumps(roi_growth_data),
+
+
+
+
     }
+
     return render(request, 'users/dashboard.html', context)
 
 
