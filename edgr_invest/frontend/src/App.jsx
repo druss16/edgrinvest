@@ -4,8 +4,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Index from './components/Index';
-import PasswordReset from './components/PasswordReset';
-import Waitlist from './components/Waitlist';
+import PasswordReset from './PasswordReset';
+import Waitlist from './Waitlist';
+import WaitlistThankYou from './WaitlistThankyou';
 import './App.css';
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/password_reset" element={<PasswordReset />} />
         <Route path="/waitlist" element={<Waitlist />} />
-        <Route path="/waitlist-thankyou" element={<div className="min-h-screen bg-gray-900 text-white p-4 md:p-8 text-center"><h2 className="text-3xl font-bold">Thank you for joining the waitlist!</h2></div>} />
+        <Route path="/waitlist-thankyou" element={<WaitlistThankYou />} />
         <Route path="/" element={<Index />} />
       </Routes>
     </BrowserRouter>

@@ -133,7 +133,7 @@ const Login = () => {
               />
               <Label htmlFor="remember" className="text-white">Remember me</Label>
             </div>
-            <a href="/password_reset/" className="text-teal-400 hover:text-teal-300 text-sm">
+            <a href="/reset-password/" className="text-teal-400 hover:text-teal-300 text-sm">
               Forgot your password?
             </a>
           </div>

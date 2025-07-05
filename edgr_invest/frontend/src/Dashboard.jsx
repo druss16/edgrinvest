@@ -174,7 +174,7 @@ const Dashboard = () => {
     ],
   };
 
-  const chartOptions = {
+  const performanceChartOptions = {
     responsive: true,
     animation: {
       duration: 2000,
@@ -205,13 +205,56 @@ const Dashboard = () => {
         ticks: { color: '#94a3b8', font: { size: 14 } },
       },
       y: {
+        beginAtZero: false,
+        grid: { color: 'rgba(255, 255, 255, 0.05)', lineWidth: 1 },
+        ticks: {
+          color: '#94a3b8',
+          font: { size: 14 },
+          callback: (val) => `$${val.toLocaleString()}`,
+        },
+        suggestedMin: 0,
+        suggestedMax: Math.max(...(performanceData.data || [5000])) * 1.2 || 6000,
+      },
+    },
+  };
+
+  const roiChartOptions = {
+    responsive: true,
+    animation: {
+      duration: 2000,
+      easing: 'easeOutElastic',
+    },
+    layout: { padding: { top: 50, bottom: 30 } },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(30, 30, 47, 0.9)',
+        titleColor: '#fff',
+        bodyColor: '#00ff66',
+        borderColor: '#00ccff',
+        borderWidth: 2,
+        cornerRadius: 8,
+        padding: 12,
+        callbacks: {
+          label: (ctx) => `${ctx.parsed.y.toFixed(2)}%`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)', lineWidth: 1 },
+        ticks: { color: '#94a3b8', font: { size: 14 } },
+      },
+      y: {
         beginAtZero: true,
         grid: { color: 'rgba(255, 255, 255, 0.05)', lineWidth: 1 },
         ticks: {
           color: '#94a3b8',
           font: { size: 14 },
-          callback: (val) => (val >= 1000 ? `$${val.toLocaleString()}` : `${val}%`),
+          callback: (val) => `${val}%`,
         },
+        suggestedMin: 0,
+        suggestedMax: Math.max(...(roiData.data || [0])) * 1.2 || 12,
       },
     },
   };
@@ -221,102 +264,105 @@ const Dashboard = () => {
     return Number(value).toFixed(2);
   };
 
+  // Calculate total_portfolio_value as initial_investment_amount + profit
+  const totalPortfolioValue = (profile?.initial_investment_amount || 0) + (profile?.profit || 0);
+
   return (
-    <div className="dashboard-container p-6 md:p-10">
+    <div className="dashboard-container p-4 md:p-8">
       {loading ? (
         <div className="loading-splash">
-          <h1 className="text-4xl font-bold text-white">Loading</h1>
+          <h1 className="text-3xl font-bold text-white">Portfolio</h1>
           <div className="loading-bar-container">
             <div className="loading-bar"></div>
           </div>
         </div>
       ) : (
-        <div className="max-w-7xl mx-auto">
+        <div className="dashboard-content max-w-6xl mx-auto">
           <motion.div
-            className="flex justify-between items-center mb-12"
-            initial={{ opacity: 0, y: -20 }}
+            className="flex justify-between items-center mb-10"
+            initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
           >
-            <h1 className="text-5xl md:text-6xl font-bold text-white">
-              Welcome, <span className="blue-neon">{profile?.username || profile?.email || 'User'}</span>
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
+              Welcome, <span className="text-white">{profile?.username || profile?.email || 'User'}</span>
             </h1>
             <motion.button
               onClick={handleLogout}
-              className="blue-button px-4 py-2 rounded-lg flex items-center"
+              className="blue-button px-3 py-1.5 rounded-lg flex items-center"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              <LogOut className="mr-2 h-5 w-5" /> Logout
+              <LogOut className="mr-1.5 h-4 w-4" /> Logout
             </motion.button>
           </motion.div>
 
           {error && (
             <motion.p
-              className="text-red-400 bg-red-900/30 p-4 rounded-xl mb-8 text-center"
+              className="text-red-400 bg-red-900/30 p-3 rounded-lg mb-6 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               {error}
             </motion.p>
           )}
-          <div className="space-y-12">
+          <div className="space-y-10">
             {/* Portfolio and ROI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <motion.div
-                className="card-glass rounded-xl p-6"
-                initial={{ opacity: 0, x: -20 }}
+                className="card-glass rounded-lg p-5"
+                initial={{ opacity: 0, x: -15 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
               >
-                <h3 className="text-lg uppercase font-semibold text-gray-300 mb-4">
-                  Total Portfolio Value
+                <h3 className="text-base uppercase font-semibold text-gray-300 mb-3">
+                  Principal Investment
                 </h3>
-                <div className="text-6xl font-bold text-neon">
-                  ${profile?.total_portfolio_value?.toLocaleString() || '0.00'}
+                <div className="text-3xl font-bold text-neon">
+                  ${profile?.initial_investment_amount?.toLocaleString() || '0.00'}
                 </div>
-                <div className="mt-4 space-y-2 text-lg">
+                <div className="mt-3 space-y-1.5 text-base">
                   <p>
                     <span className="text-white">Initial Investment:</span>{' '}
-                    <span className="text-gray-200">${profile?.initial_investment_amount?.toLocaleString() || '0.00'}</span>
+                    <span className="text-gray-50">${profile?.initial_investment_amount?.toLocaleString() || '0.00'}</span>
                   </p>
                   <p>
                     <span className="text-white">Unrealized Gain:</span>{' '}
-                    <span className="text-green-400">${profile?.unrealized_gain?.toLocaleString() || '0.00'}</span>
+                    <span className="text-green-200">${profile?.unrealized_gain?.toLocaleString() || '0.00'}</span>
                   </p>
                   <p>
                     <span className="text-white">Dividend(s) Paid:</span>{' '}
-                    <span className="text-yellow-400">${profile?.dividend_paid?.toLocaleString() || '0.00'}</span>
+                    <span className="text-yellow-50">${profile?.dividend_paid?.toLocaleString() || '0.00'}</span>
                   </p>
                   <p>
                     <span className="text-white">Total Profit:</span>{' '}
-                    <span className="text-green-400">${profile?.profit?.toLocaleString() || '0.00'}</span>
+                    <span className="text-green-200">${profile?.profit?.toLocaleString() || '0.00'}</span>
                   </p>
                 </div>
               </motion.div>
               <motion.div
-                className="card-glass rounded-xl p-6"
-                initial={{ opacity: 0, x: 20 }}
+                className="card-glass rounded-lg p-5"
+                initial={{ opacity: 0, x: 15 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
               >
-                <h3 className="text-lg uppercase font-semibold text-gray-300 mb-4">
+                <h3 className="text-base uppercase font-semibold text-gray-300 mb-3">
                   Return on Investment (ROI)
                 </h3>
                 <motion.div
                   ref={roiCounterRef}
-                  className={`text-6xl font-bold text-neon ${currentRoi >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                  className={`text-5xl font-bold text-neon ${currentRoi >= 0 ? 'text-green-400' : 'text-red-400'}`}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
                 >
                   {currentRoi >= 0 ? '+' : ''}{currentRoi}%
                 </motion.div>
-                <div className="mt-4 text-lg">
+                <div className="mt-3 text-base">
                   {currentRoi >= 0 ? (
-                    <span className="text-green-400">Profit</span>
+                    <span className="text-green-200">Profit</span>
                   ) : (
-                    <span className="text-red-400">Loss</span>
+                    <span className="text-red-200">Loss</span>
                   )}
                 </div>
               </motion.div>
@@ -324,28 +370,28 @@ const Dashboard = () => {
 
             {/* Total Account Value Chart */}
             <motion.div
-              className="card-glass rounded-xl p-6"
-              initial={{ opacity: 0, y: 20 }}
+              className="card-glass rounded-lg p-5"
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
             >
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-5">
                 <div>
-                  <h3 className="text-lg uppercase font-semibold text-gray-300">
+                  <h3 className="text-base uppercase font-semibold text-gray-300">
                     Total Account Value
                   </h3>
-                  <div className="text-4xl font-bold text-neon">
-                    ${profile?.total_portfolio_value?.toLocaleString() || '0.00'}
+                  <div className="text-3xl font-bold text-neon">
+                    ${totalPortfolioValue.toLocaleString() || '0.00'}
                   </div>
-                  <div className="text-sm text-green-400">
+                  <div className="text-xs text-green-400">
                     ${profile?.profit?.toLocaleString() || '0.00'} ({currentRoi}%)
                   </div>
                 </div>
-                <div className="space-x-2">
+                <div className="space-x-1.5">
                   {['1M', '3M', '1Y'].map((period) => (
                     <motion.button
                       key={period}
-                      className="border border-gray-500 text-gray-300 px-3 py-1 rounded-lg hover:bg-gray-600 hover:text-white transition duration-300"
+                      className="border border-gray-500 text-gray-300 px-2.5 py-1 rounded-lg hover:bg-gray-600 hover:text-white transition duration-300"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -355,87 +401,94 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="chart-container">
-                <Line data={performanceChartData} options={chartOptions} />
+                <Line data={performanceChartData} options={performanceChartOptions} />
               </div>
             </motion.div>
 
             {/* Quarterly ROI Growth Chart */}
             <motion.div
-              className="card-glass rounded-xl p-6"
-              initial={{ opacity: 0, y: 20 }}
+              className="card-glass rounded-lg p-5"
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
             >
-              <div className="mb-6">
-                <h3 className="text-lg uppercase font-semibold text-gray-300">
+              <div className="mb-5">
+                <h3 className="text-base uppercase font-semibold text-gray-300">
                   Quarterly ROI Growth
                 </h3>
-                <div className="text-4xl font-bold text-neon">ROI Change %</div>
-                <div className="text-sm text-gray-400">Quarter-over-Quarter</div>
+                <div className="text-3xl font-bold text-neon">Yield Chart</div>
+                <div className="text-xs text-gray-400">Quarter-over-Quarter</div>
               </div>
               <div className="chart-container">
-                <Line data={roiChartData} options={chartOptions} />
+                <Line data={roiChartData} options={roiChartOptions} />
               </div>
             </motion.div>
 
             {/* Investment Summary Table */}
             <motion.div
-              className="card-glass rounded-xl p-6"
-              initial={{ opacity: 0, y: 20 }}
+              className="card-glass rounded-lg p-5"
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
             >
-              <h3 className="text-2xl font-semibold text-white mb-6">Investment Summary (Quarterly)</h3>
+              <h3 className="text-lg font-semibold text-white mb-3">Investment Summary (Quarterly)</h3>
               <div className="overflow-x-auto">
-                <table className="w-full text-lg">
+                <table className="w-full text-base">
                   <thead>
                     <tr className="bg-gray-800 border-b-2 border-teal-500">
-                      <th className="py-4 px-6 text-left text-teal-300 font-medium">Quarter</th>
-                      <th className="py-4 px-6 text-left text-teal-300 font-medium">Beg Bal</th>
-                      <th className="py-4 px-6 text-left text-teal-300 font-medium">Div %</th>
-                      <th className="py-4 px-6 text-left text-teal-300 font-medium">Dividend</th>
-                      <th className="py-4 px-6 text-left text-teal-300 font-medium">Unrealized</th>
-                      <th className="py-4 px-6 text-left text-teal-300 font-medium">Paid</th>
-                      <th className="py-4 px-6 text-left text-teal-300 font-medium">End Bal</th>
+                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Quarter</th>
+                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Principal</th>
+                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Div %</th>
+                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Dividend</th>
+                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Unrealized</th>
+                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Paid</th>
+                      <th className="py-3 px-5 text-left text-teal-300 font-medium">End Bal</th>
                     </tr>
                   </thead>
                   <tbody>
                     {summaries.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="text-center text-gray-500 py-6">
+                        <td colSpan="7" className="text-center text-gray-500 py-5">
                           No summary data available.
                         </td>
                       </tr>
                     ) : (
-                      summaries.map((summary) => (
-                        <motion.tr
-                          key={summary.id}
-                          className="border-b border-gray-700 table-row-hover"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <td className="py-4 px-6 text-white">{summary.quarter}</td>
-                          <td className="py-4 px-6 text-green-400">
-                            ${summary.beginning_balance.toLocaleString()}
-                          </td>
-                          <td className="py-4 px-6 text-yellow-400">
-                            {formatNumber(summary.dividend_percent)}%
-                          </td>
-                          <td className="py-4 px-6 text-yellow-400">
-                            ${summary.dividend_amount.toLocaleString()}
-                          </td>
-                          <td className="py-4 px-6 text-green-400">
-                            ${summary.unrealized_gain.toLocaleString()}
-                          </td>
-                          <td className="py-4 px-6 text-yellow-400">
-                            ${summary.dividend_paid.toLocaleString()}
-                          </td>
-                          <td className="py-4 px-6 text-green-400">
-                            ${summary.ending_balance.toLocaleString()}
-                          </td>
-                        </motion.tr>
-                      ))
+                      summaries.map((summary, index) => {
+                        // Calculate ending_balance as initial_investment_amount + profit for the latest quarter
+                        const isLatestQuarter = index === summaries.length - 1;
+                        const endingBalance = isLatestQuarter
+                          ? (profile?.initial_investment_amount || 0) + (profile?.profit || 0)
+                          : summary.ending_balance;
+                        return (
+                          <motion.tr
+                            key={summary.id}
+                            className="border-b border-gray-700 table-row-hover"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <td className="py-3 px-5 text-white">{summary.quarter}</td>
+                            <td className="py-3 px-5 text-green-400">
+                              ${summary.beginning_balance.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-5 text-yellow-400">
+                              {formatNumber(summary.dividend_percent)}%
+                            </td>
+                            <td className="py-3 px-5 text-yellow-400">
+                              ${summary.dividend_amount.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-5 text-green-400">
+                              ${summary.unrealized_gain.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-5 text-yellow-400">
+                              ${summary.dividend_paid.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-5 text-green-400">
+                              ${endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </td>
+                          </motion.tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
