@@ -2,14 +2,16 @@
 FROM node:22-slim AS frontend-build
 WORKDIR /app/frontend
 
-# Update npm to match modern lockfile format compatibility
-RUN npm install -g npm@10
+# Sanity: Upgrade npm to latest compatible version
+RUN npm install -g npm@latest
 
-# Copy both package.json and lock file
-COPY frontend/package*.json ./
+# Make sure both files are copied — NO wildcards
+COPY frontend/package.json ./
+COPY frontend/package-lock.json ./
+
 RUN npm ci
 
-# Copy source code and build
+# Copy the rest of your frontend code
 COPY frontend/ .
 RUN npm run build
 
