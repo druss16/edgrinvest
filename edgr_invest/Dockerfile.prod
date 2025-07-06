@@ -5,14 +5,14 @@ WORKDIR /app/frontend
 # Sanity: Upgrade npm to latest compatible version
 RUN npm install -g npm@latest
 
-# Make sure both files are copied — NO wildcards
-COPY edgr_invest/frontend/package.json ./
-COPY edgr_invest/frontend/package-lock.json ./
+# Copy only what’s needed for install
+COPY frontend/package.json ./
+COPY frontend/package-lock.json ./
 
 RUN npm ci
 
-# Copy the rest of your frontend code
-COPY edgr_invest/frontend/ .
+# Copy the rest of the frontend code
+COPY frontend/ .
 RUN npm run build
 
 
@@ -33,17 +33,17 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY edgr_invest/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy Django project
-COPY edgr_invest/ .
+COPY . .
 
 # Copy React build output from Vite (dist → build)
 COPY --from=frontend-build /app/frontend/dist /app/frontend/build
 
 # Copy frontend/src/assets explicitly (if needed at runtime)
-COPY edgr_invest/frontend/src/assets /app/frontend/src/assets
+COPY frontend/src/assets /app/frontend/src/assets
 
 # Create logs and staticfiles directories
 RUN mkdir -p /app/logs /app/staticfiles && chmod -R 775 /app/logs /app/staticfiles
@@ -79,7 +79,7 @@ COPY --from=build /app /app
 RUN chown -R appuser:appgroup /app/logs /app/staticfiles
 
 # Copy entrypoint
-COPY edgr_invest/entrypoint.sh /app/entrypoint.sh
+COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Set ownership
