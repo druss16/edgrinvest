@@ -14,12 +14,43 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# from django.contrib import admin
+# from django.urls import path, include
+
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path("accounts/", include("allauth.urls")),  # Allauth authentication URLs
+#     path("", include("users.urls")),  # Users app URLs
+# ]
+
+# from django.urls import path, include, re_path
+# from django.views.generic import TemplateView
+
+# urlpatterns = [
+#     path('api/users/', include('users.urls', namespace='users')),
+#     # Serve React app for non-API routes
+#     re_path(r'^(?!api/users/.*$).*$', TemplateView.as_view(template_name='index.html'), name='react-app'),
+# ]
+
+# from django.contrib import admin
+# from django.urls import path, include
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('api/users/', include('users.urls', namespace='users')),  # Include users app URLs
+# ]
+
 from django.contrib import admin
 from django.urls import path, include
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("accounts/", include("allauth.urls")),  # Allauth authentication URLs
-    path("", include("users.urls")),  # Users app URLs
+
+    # ✅ API endpoints
+    path('api/users/', include('users.api_urls', namespace='users')),
+
+    # ✅ Frontend React fallbacks
+    path('', include('users.urls')),
 ]
+

@@ -107,32 +107,6 @@ class InvestmentSummaryDeux(models.Model):
     beginning_balance = models.DecimalField(max_digits=12, decimal_places=2)
     dividend_percent = models.DecimalField(max_digits=5, decimal_places=2)
     dividend_amount = models.DecimalField(max_digits=12, decimal_places=2)
-    rollover_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)  # updated
-    dividend_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)  # updated
-    ending_balance = models.DecimalField(max_digits=12, decimal_places=2)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    def get_user(self):
-        return settings.AUTH_USER_MODEL.objects.using('default').get(id=self.user_id)
-
-    def __str__(self):
-        try:
-            return f"{self.get_user().username} - {self.quarter} Summary"
-        except Exception:
-            return f"Summary for User ID {self.user_id} - {self.quarter}"
-
-    class Meta:
-        app_label = 'users'
-        db_table = 'investment_summary'
-        ordering = ['-quarter']
-
-
-class InvestmentSummaryDeux(models.Model):
-    user_id = models.BigIntegerField(db_index=True)
-    quarter = models.CharField(max_length=6)  # e.g., "Q2-25"
-    beginning_balance = models.DecimalField(max_digits=12, decimal_places=2)
-    dividend_percent = models.DecimalField(max_digits=5, decimal_places=2)
-    dividend_amount = models.DecimalField(max_digits=12, decimal_places=2)
     unrealized_gain = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)  # new field
     dividend_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     ending_balance = models.DecimalField(max_digits=12, decimal_places=2)

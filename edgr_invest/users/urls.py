@@ -1,33 +1,34 @@
-# Create your views here.
 from django.urls import path
-
-# In users/urls.py
-from django.urls import path
+from django.contrib.auth import views as auth_views  # ✅ Must come before usage
 from . import views
 
-app_name = 'users'  # This creates a namespace for your URLs
+app_name = 'users'
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('settings/', views.user_settings, name='user_settings'),
-    path('settings/change-password/', views.change_password, name='change_password'),
-    path('dashboard/', views.investment_dashboard, name='investment_dashboard'),
-    path('add-investment/', views.add_investment, name='add_investment'),
-    path('investment-list/', views.investment_list, name='investment_list'),
-    path('export-investments/', views.export_investments_csv, name='export_investments_csv'),
-    # urls.py
-    path('add-investment-summary/', views.add_investment_summary, name='add_investment_summary'),
-    path('test/', views.test_view, name='test'),
-    path('set-theme/', views.set_theme, name='set_theme'),
-    path('join-waitlist/', views.join_waitlist, name='join_waitlist'),
-    path('thank-you/', views.waitlist_thankyou, name='waitlist_thankyou'),
-    # users/urls.py
-    path('summaries/<int:user_id>/', views.get_user_summaries, name='get_user_summaries'),
-    path('edit-investment-summary/<int:pk>/', views.edit_investment_summary, name='edit_investment_summary'),
+    path('', views.redirect_to_react, name='home'),
+    path('dashboard/', views.redirect_to_react, name='investment_dashboard'),
+    path('settings/', views.redirect_to_react, name='user_settings'),
+    path('password_reset/', views.redirect_to_react, name='password_reset'),
+    path('waitlist/', views.redirect_to_react, name='join_waitlist'),
+    path('waitlist-thankyou/', views.redirect_to_react, name='waitlist_thankyou'),
+    path('add-investment/', views.redirect_to_react, name='add_investment'),
+    path('investment-list/', views.redirect_to_react, name='investment_list'),
+    path('add-investment-summary/', views.redirect_to_react, name='add_investment_summary'),
+    path('edit-investment-summary/<int:pk>/', views.redirect_to_react, name='edit_investment_summary'),
 
-
-
-    # path('profile/', views.profile, name='profile'),
-    # path('settings/', views.settings, name='settings'),
-    # Add more URL patterns as needed
+    # ✅ Django password reset confirm and complete views
+    path(
+        'reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='account/password_reset_confirm.html'
+        ),
+        name='password_reset_confirm'
+    ),
+    path(
+        'reset/done/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='account/password_reset_complete.html'
+        ),
+        name='password_reset_complete'
+    ),
 ]

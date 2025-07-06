@@ -6,10 +6,27 @@ from .models import Investment, UserProfile
 from .forms import InvestmentSummaryForm
 import json
 from decimal import Decimal
+from rest_framework.permissions import AllowAny  # Import AllowAny
 
 from django.core.mail import send_mail
 from django.contrib import messages
 from .forms import WaitlistSignupForm
+
+from django.middleware.csrf import get_token
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+
+class WaitlistTest(APIView):
+    def get(self, request):
+        return Response({"message": "This is working"})
+
+
 
 # In users/views.py
 def home(request):
@@ -87,27 +104,27 @@ def set_theme(request):
     return JsonResponse({'status': 'success', 'theme': theme})
 
 
-def join_waitlist(request):
-    if request.method == 'POST':
-        form = WaitlistSignupForm(request.POST)
-        if form.is_valid():
-            signup = form.save()
+# def join_waitlist(request):
+#     if request.method == 'POST':
+#         form = WaitlistSignupForm(request.POST)
+#         if form.is_valid():
+#             signup = form.save()
 
-            # Send email notification
-            send_mail(
-                'New Waitlist Signup - EdgrInvest',
-                f'New signup:\n\nName: {signup.full_name}\nEmail: {signup.email}',
-                'no-reply@yourdomain.com',  # FROM email
-                ['youremail@yourdomain.com'],  # TO email (your admin email)
-                fail_silently=False,
-            )
+#             # Send email notification
+#             send_mail(
+#                 'New Waitlist Signup - EdgrInvest',
+#                 f'New signup:\n\nName: {signup.full_name}\nEmail: {signup.email}',
+#                 'no-reply@yourdomain.com',  # FROM email
+#                 ['youremail@yourdomain.com'],  # TO email (your admin email)
+#                 fail_silently=False,
+#             )
 
-            messages.success(request, 'Thank you for joining the waitlist!')
-            return redirect('users:waitlist_thankyou')
-    else:
-        form = WaitlistSignupForm()
+#             messages.success(request, 'Thank you for joining the waitlist!')
+#             return redirect('users:waitlist_thankyou')
+#     else:
+#         form = WaitlistSignupForm()
 
-    return render(request, 'users/join_waitlist.html', {'form': form})
+#     return render(request, 'users/join_waitlist.html', {'form': form})
 
 
 
@@ -354,3 +371,495 @@ def edit_investment_summary(request, pk):
         'form': form,
         'summary': summary,
     })
+
+
+
+## API VIEWS ##
+
+from django.middleware.csrf import get_token
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import login, logout, authenticate
+from django.http import HttpResponse
+from django.shortcuts import redirect
+import csv
+from decimal import Decimal
+from .serializers import (
+    ServiceSerializer, TeamMemberSerializer, WaitlistSignupSerializer,
+    CustomUserSerializer, InvestmentSerializer, InvestmentSummarySerializer,
+    InvestmentSummaryDeuxSerializer, InvestmentSummaryForm
+)
+from .models import WaitlistSignup, CustomUser, Investment, InvestmentSummary, InvestmentSummaryDeux
+import logging
+
+logger = logging.getLogger(__name__)
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching profile for user ID: {request.user.id}")
+            user = CustomUser.objects.get(id=request.user.id)
+            serializer = CustomUserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            logger.error(f"CustomUser not found for user ID: {request.user.id}")
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error in ProfileView: {str(e)}", exc_info=True)
+            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class SignUpView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            username = request.data.get('username')
+            email = request.data.get('email')
+            password = request.data.get('password')
+            if CustomUser.objects.filter(username=username).exists():
+                logger.warning(f"Signup attempt with existing username: {username}")
+                return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+            user = CustomUser.objects.create_user(username=username, email=email, password=password)
+            login(request, user)
+            token, created = Token.objects.get_or_create(user=user)
+            logger.info(f"User {username} signed up successfully")
+            return Response({
+                'token': token.key,
+                'user_id': user.id,
+                'username': user.username
+            }, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(f"Error in SignUpView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class SummariesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching summaries for user ID: {request.user.id}")
+            summaries = InvestmentSummaryDeux.objects.filter(user_id=request.user.id).order_by('-quarter')
+            serializer = InvestmentSummaryDeuxSerializer(summaries, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in SummariesView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class PerformanceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching performance data for user ID: {request.user.id}")
+            investments = Investment.objects.filter(user_id=request.user.id).order_by('start_date')
+            initial_investment = float(sum(investment.amount_invested for investment in investments) or 0)
+            labels = ['Initial'] + [inv.quarter for inv in investments]
+            data = [initial_investment] + [float(inv.current_value) for inv in investments]
+            return Response({"labels": labels, "data": data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in PerformanceView: {str(e)}", exc_info=True)
+            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class RoiGrowthView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching ROI growth for user ID: {request.user.id}")
+            summaries = InvestmentSummaryDeux.objects.filter(user_id=request.user.id).order_by('date_created')
+            initial_investment = float(sum(inv.amount_invested for inv in Investment.objects.filter(user_id=request.user.id)) or 0)
+            labels = ['Initial'] + [summary.quarter for summary in summaries]
+            data = [0.0]
+            cumulative_profit = 0
+            for summary in summaries:
+                cumulative_profit += float(summary.dividend_paid + summary.unrealized_gain)
+                roi = (cumulative_profit / initial_investment * 100) if initial_investment > 0 else 0
+                data.append(round(roi, 2))
+            return Response({"labels": labels, "data": data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in RoiGrowthView: {str(e)}", exc_info=True)
+            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ServiceListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        try:
+            logger.info("Fetching services list")
+            services = [
+                {"title": "Investment Management", "description": "Comprehensive portfolio management services."},
+                {"title": "Wealth Advisory", "description": "Strategic wealth planning for high-net-worth individuals."},
+                {"title": "Risk Management", "description": "Advanced risk assessment and mitigation strategies."},
+                {"title": "Global Markets", "description": "Access to international investment opportunities."},
+            ]
+            serializer = ServiceSerializer(services, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in ServiceListView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class TeamListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        try:
+            logger.info("Fetching team list")
+            team = [
+                {"name": "Michael Chen", "role": "Managing Partner", "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d"},
+                {"name": "Sarah Williams", "role": "Head of Investment Strategy", "image": "https://images.unsplash.com/photo-1494790108755-2616b612b786"},
+                {"name": "David Rodriguez", "role": "Senior Portfolio Manager", "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"},
+            ]
+            serializer = TeamMemberSerializer(team, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in TeamListView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import WaitlistSignupSerializer
+import logging
+
+logger = logging.getLogger(__name__)
+
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import WaitlistSignupSerializer
+import logging
+
+logger = logging.getLogger(__name__)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from django.utils.decorators import method_decorator
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework import status
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
+@method_decorator(csrf_exempt, name='dispatch')
+class FinalWaitlistApiView(APIView):
+    permission_classes = [AllowAny]  # Allow non-authenticated users
+
+    def post(self, request):
+        data = request.data
+        full_name = data.get('full_name')
+        email = data.get('email')
+
+        if not full_name or not email:
+            return Response({'error': 'Full name and email are required.'}, status=400)
+
+        # ✅ Save to DB
+        try:
+            WaitlistSignup.objects.create(full_name=full_name, email=email)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+        return Response({'message': 'Successfully joined waitlist!'}, status=201)
+
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.contrib.auth.forms import PasswordResetForm
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
+from .serializers import PasswordResetSerializer
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PasswordResetView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data['email']
+        form = PasswordResetForm({'email': email})
+
+        if form.is_valid():
+            form.save(
+                request=request,
+                use_https=request.is_secure(),
+                email_template_name='account/password_reset_email.html',
+            )
+            return Response({"message": "Password reset link sent"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Email not found or invalid."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+from django.contrib.auth.forms import PasswordResetForm
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        form = PasswordResetForm({'email': email})
+        if form.is_valid():
+            form.save(
+                request=request,
+                use_https=request.is_secure(),
+                email_template_name='account/password_reset_email.html',  # ✅ Custom email template
+                subject_template_name='account/password_reset_subject.txt',  # Optional
+                from_email=None,
+            )
+            return Response({'message': 'Password reset email sent.'}, status=status.HTTP_200_OK)
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+import logging
+
+logger = logging.getLogger(__name__)
+UserModel = get_user_model()
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        uidb64 = request.data.get('uid')
+        token = request.data.get('token')
+        new_password1 = request.data.get('new_password1')
+        new_password2 = request.data.get('new_password2')
+
+        if new_password1 != new_password2:
+            return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = UserModel.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, UserModel.DoesNotExist) as e:
+            logger.warning(f"Password reset failed: could not decode uid or find user: {str(e)}")
+            return Response({'error': 'Invalid user'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not default_token_generator.check_token(user, token):
+            logger.warning(f"Password reset failed: invalid token for user {user.pk}")
+            return Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password1)
+        user.save()
+
+        logger.info(f"Password reset successful for user ID: {user.pk}")
+        return Response({'message': 'Password has been reset successfully'}, status=status.HTTP_200_OK)
+
+
+class InvestmentListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching investments for user ID: {request.user.id}")
+            investments = Investment.objects.filter(user_id=request.user.id).order_by('-quarter')
+            serializer = InvestmentSerializer(investments, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in InvestmentListView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class InvestmentSummaryListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching InvestmentSummary for user ID: {request.user.id}")
+            summaries = InvestmentSummaryDeux.objects.filter(user_id=request.user.id).order_by('-quarter')
+            serializer = InvestmentSummaryDeuxSerializer(summaries, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in InvestmentSummaryListView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class InvestmentSummaryDeuxListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching InvestmentSummaryDeux for user ID: {request.user.id}")
+            summaries = InvestmentSummaryDeux.objects.filter(user_id=request.user.id).order_by('-quarter')
+            serializer = InvestmentSummaryDeuxSerializer(summaries, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in InvestmentSummaryDeuxListView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CustomAuthToken(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            username = request.data.get('username')
+            password = request.data.get('password')
+            user = authenticate(request=request, username=username, password=password)
+            if user:
+                login(request, user)
+                token, created = Token.objects.get_or_create(user=user)
+                logger.info(f"User {username} logged in successfully")
+                return Response({
+                    'token': token.key,
+                    'user_id': user.id,
+                    'username': user.username
+                }, status=status.HTTP_200_OK)
+            logger.warning(f"Invalid login attempt for username: {username}")
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            logger.error(f"Error in CustomAuthToken: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            logger.info(f"User {request.user.username} (ID: {request.user.id}) attempting to log out")
+            token_key = request.auth.key if request.auth else 'None'
+            logger.debug(f"Received token: {token_key}")
+            logout(request)
+            if request.auth:
+                request.auth.delete()
+            return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in LogoutView for user {request.user.username}: {str(e)}", exc_info=True)
+            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ExportInvestmentsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Exporting investments for user ID: {request.user.id}")
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="investment_report.csv"'
+            writer = csv.writer(response)
+            writer.writerow(['Quarter', 'Invested ($)', 'Current Value ($)', 'Profit/Loss ($)', 'ROI (%)'])
+            investments = Investment.objects.filter(user_id=request.user.id).order_by('-quarter')
+            for investment in investments:
+                writer.writerow([
+                    investment.quarter,
+                    float(investment.amount_invested),
+                    float(investment.current_value),
+                    float(investment.profit_loss()),
+                    round(float(investment.roi_percentage()), 2)
+                ])
+            return response
+        except Exception as e:
+            logger.error(f"Error in ExportInvestmentsView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AddInvestmentSummaryView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        try:
+            logger.info(f"Adding investment summary by admin: {request.user.username}")
+            form = InvestmentSummaryForm(data=request.data)
+            if form.is_valid():
+                form.save()
+                return Response({"message": "Investment summary added successfully"}, status=status.HTTP_201_CREATED)
+            logger.warning(f"Invalid form data: {form.errors}")
+            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Error in AddInvestmentSummaryView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class EditInvestmentSummaryView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def put(self, request, pk):
+        try:
+            logger.info(f"Editing investment summary ID {pk} by admin: {request.user.username}")
+            summary = InvestmentSummaryDeux.objects.get(pk=pk)
+            form = InvestmentSummaryForm(data=request.data, instance=summary)
+            if form.is_valid():
+                form.save()
+                return Response({"message": "Investment summary updated successfully"}, status=status.HTTP_200_OK)
+            logger.warning(f"Invalid form data: {form.errors}")
+            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+        except InvestmentSummaryDeux.DoesNotExist:
+            logger.error(f"InvestmentSummaryDeux not found for ID: {pk}")
+            return Response({"error": "Investment summary not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error in EditInvestmentSummaryView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class SetThemeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            theme = request.data.get('theme', 'light')
+            request.session['theme'] = theme
+            logger.info(f"Theme set to {theme} for user ID: {request.user.id}")
+            return Response({'status': 'success', 'theme': theme}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in SetThemeView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class GetUserSummariesView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, user_id):
+        try:
+            logger.info(f"Fetching summaries for user ID {user_id} by admin: {request.user.username}")
+            summaries = InvestmentSummaryDeux.objects.filter(user_id=user_id).order_by('-quarter')
+            serializer = InvestmentSummaryDeuxSerializer(summaries, many=True)
+            return Response({'summaries': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in GetUserSummariesView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class GetCsrfTokenView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        try:
+            logger.info("Fetching CSRF token for session")
+            token = get_token(request)
+            response = Response({'csrfToken': token}, status=status.HTTP_200_OK)
+            response.set_cookie('csrftoken', token)
+            return response
+        except Exception as e:
+            logger.error(f"Error in GetCsrfTokenView: {str(e)}", exc_info=True)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def redirect_to_react(request):
+    logger.info(f"Redirecting to React app from {request.path}")
+    return redirect('http://localhost:8080')
