@@ -3,6 +3,8 @@ import { ArrowRight, TrendingUp, Users, Shield, Globe, Mail, Phone, MapPin, Menu
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
+import alImage from './assets/edgr_pic_al.jpg';
+import danImage from './assets/edgr_pic_dan.jpg';
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,19 +35,14 @@ const Index = () => {
 
   const team = [
     {
-      name: "Michael Chen",
-      role: "Managing Partner",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
+      name: "Al",
+      role: "Chief Investment Officer",
+      image: alImage
     },
     {
-      name: "Sarah Williams",
-      role: "Head of Investment Strategy",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face"
-    },
-    {
-      name: "David Rodriguez",
-      role: "Senior Portfolio Manager",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face"
+      name: "Dan",
+      role: "Portfolio Manager",
+      image: danImage
     }
   ];
 
@@ -62,7 +59,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="text-2xl font-bold text-white">
-                EdgeRin Investment
+                EDGR Invest
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
@@ -122,7 +119,7 @@ const Index = () => {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto animate-fade-in">
-              At EdgeRin Investment, we combine decades of expertise with innovative strategies to deliver exceptional returns for our clients.
+              At EDGR Invest, we combine decades of expertise with innovative strategies to deliver exceptional returns for our clients.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
               <Button size="lg" className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-500 hover:to-blue-700 text-lg px-8 py-4 shadow-lg shadow-blue-900/50" onClick={handleClientPortalClick}>
@@ -155,7 +152,7 @@ const Index = () => {
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">Strategic Investment</span>
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                EdgeRin Investment is dedicated to providing personalized investment solutions that align with your financial goals. Our team of experts leverages cutting-edge strategies to maximize returns while minimizing risks.
+                EDGR Invest is dedicated to providing personalized investment solutions that align with your financial goals. Our team of experts leverages cutting-edge strategies to maximize returns while minimizing risks.
               </p>
               <div className="grid grid-cols-2 gap-8">
                 <div className="p-4 bg-white rounded-lg border-l-4 border-blue-600 shadow-sm">
@@ -297,7 +294,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
-              <div className="text-2xl font-bold text-white mb-4">EdgeRin Investment</div>
+              <div className="text-2xl font-bold text-white mb-4">EDGR Invest</div>
               <div className="w-16 h-1 bg-gradient-to-r from-blue-500 to-blue-700 mb-4"></div>
               <p className="text-gray-400 mb-6 max-w-md">
                 A premier investment management firm dedicated to helping our clients achieve their financial goals through disciplined, research-driven investment strategies.
@@ -323,7 +320,7 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t border-slate-700 mt-12 pt-8 text-center text-gray-400">
-            <p>© 2024 EdgeRin Investment. All rights reserved.</p>
+            <p>© 2024 EDGR Invest. All rights reserved.</p>
           </div>
         </div>
       </footer>
