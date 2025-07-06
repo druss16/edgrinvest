@@ -1,7 +1,7 @@
 # Stage 1: Build React frontend
 FROM node:16 AS frontend-build
 WORKDIR /app/frontend
-COPY frontend/package.json frontend/package-lock.json ./
+COPY frontend/package.json ./  # Removed package-lock.json for flexibility
 RUN npm install
 COPY frontend/ .
 RUN npm run build
@@ -26,6 +26,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 # Copy React build output
 COPY --from=frontend-build /app/frontend/build /app/frontend/build
+# Copy frontend/src/assets explicitly
+COPY frontend/src/assets /app/frontend/src/assets
 # Create logs and staticfiles directories
 RUN mkdir -p /app/logs /app/staticfiles && chmod -R 775 /app/logs /app/staticfiles
 # Collect static files
