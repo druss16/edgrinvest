@@ -1,16 +1,21 @@
 # Build stage
 FROM node:20 AS build
 
-# Inject the env var into the build
+# Define build arg
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+
+# 👇 Echo to confirm value
+RUN echo "🚨 VITE_API_URL is: $VITE_API_URL"
 
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
 
-# Vite will pick up the ENV during build
+# 👇 Inject API env directly into Vite build if env fallback fails
+RUN echo "VITE_API_URL=${VITE_API_URL}" > .env.production
+
 RUN npm run build
 
 # Serve stage

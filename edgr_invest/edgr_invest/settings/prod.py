@@ -10,6 +10,8 @@ CORS_ALLOWED_ORIGINS = [
     'https://edgrinvest.com',
     'https://www.edgrinvest.com',
     'https://edgr-invest.onrender.com',
+    'https://edgrinvest-frontend.onrender.com',
+
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -17,6 +19,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://edgr-invest.onrender.com',
     'https://edgrinvest.com',
     'https://www.edgrinvest.com',
+    'https://edgrinvest-frontend.onrender.com',
+
 ]
 
 SECURE_SSL_REDIRECT = True
