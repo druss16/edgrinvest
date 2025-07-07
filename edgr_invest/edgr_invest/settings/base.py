@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from corsheaders.defaults import default_headers
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -78,6 +80,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -87,7 +90,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Add Whitenoise middleware
-    'corsheaders.middleware.CorsMiddleware',
 
 ]
 
@@ -97,6 +99,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://edgrinvest.com',  # Add production frontend domain
     'https://www.edgrinvest.com',
     'https://edgr-invest.onrender.com',  # If frontend is hosted on Render
+    'https://edgrinvest-frontend.onrender.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [

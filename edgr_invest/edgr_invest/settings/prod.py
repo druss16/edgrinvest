@@ -1,10 +1,19 @@
 # edgr_invest/settings/prod.py
 from .base import *
 import os
+from corsheaders.defaults import default_headers
+
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['edgr-invest.onrender.com', 'edgrinvest.com', 'www.edgrinvest.com']
+
+
+ALLOWED_HOSTS = ['edgr-invest.onrender.com', 'edgrinvest.com', 'www.edgrinvest.com', 'https://edgrinvest-frontend.onrender.com']
+
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'X-CSRFToken',
+]
 
 CORS_ALLOWED_ORIGINS = [
     'https://edgrinvest.com',
