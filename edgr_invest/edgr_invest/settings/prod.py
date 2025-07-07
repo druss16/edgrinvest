@@ -8,7 +8,8 @@ DEBUG = False
 
 
 
-ALLOWED_HOSTS = ['edgr-invest.onrender.com', "edgrinvest.onrender.com", 'edgrinvest.com', 'www.edgrinvest.com', 'https://edgrinvest-frontend.onrender.com']
+ALLOWED_HOSTS = ['edgr-invest.onrender.com', 'edgrinvest.onrender.com',  'api.edgrinvest.com',
+ 'edgrinvest.com', 'www.edgrinvest.com', 'https://edgrinvest-frontend.onrender.com']
 
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
