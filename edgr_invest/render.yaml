@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: edgr-invest
+    env: docker
+    region: oregon
+    branch: main
+    plan: free
+    dockerfilePath: edgr_invest/Dockerfile.prod
+    build:
+      args:
+        VITE_API_URL: https://edgrinvest.com
+    envVars:
+      - key: VITE_API_URL
+        value: https://edgrinvest.com
