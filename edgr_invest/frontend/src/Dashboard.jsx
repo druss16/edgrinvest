@@ -15,7 +15,7 @@ ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Filler, 
 const Dashboard = () => {
   const [profile, setProfile] = useState(null);
   const [summaries, setSummaries] = useState([]);
-  const [performanceData, setPerformanceData] = useState({ labels: [], data: [] });
+  const [accountValueData, setAccountValueData] = useState({ labels: [], data: [] });
   const [roiData, setRoiData] = useState({ labels: [], data: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,15 +33,12 @@ const Dashboard = () => {
           return;
         }
         const config = { headers: { Authorization: `Token ${token}` } };
-        const [profileRes, summariesRes, performanceRes, roiGrowthRes] = await Promise.all([
+        const [profileRes, summariesRes, roiGrowthRes] = await Promise.all([
           api.get('/api/users/profile/', config).catch(err => {
             throw new Error(`Profile fetch failed: ${err.message}`);
           }),
           api.get('/api/users/summaries-deux/', config).catch(err => {
             throw new Error(`Summaries fetch failed: ${err.message}`);
-          }),
-          api.get('/api/users/performance/', config).catch(err => {
-            throw new Error(`Performance fetch failed: ${err.message}`);
           }),
           api.get('/api/users/roi-growth/', config).catch(err => {
             throw new Error(`ROI Growth fetch failed: ${err.message}`);
@@ -59,14 +56,28 @@ const Dashboard = () => {
           roi_percentage: profileRes.data.roi_percentage,
         });
         setSummaries(summariesRes.data);
-        setPerformanceData({
-          labels: performanceRes.data.labels,
-          data: performanceRes.data.data,
+
+        // Process account value data for Total Account Value chart
+        const accountLabels = ['Initial', ...summariesRes.data.map(s => s.quarter)];
+        const accountValues = [
+          profileRes.data.initial_investment_amount || 0,
+          ...summariesRes.data.map((s, index) =>
+            index === summariesRes.data.length - 1
+              ? (profileRes.data.initial_investment_amount || 0) + (profileRes.data.profit || 0)
+              : s.ending_balance
+          )
+        ];
+        setAccountValueData({
+          labels: accountLabels,
+          data: accountValues,
         });
+
+        // Process ROI data
         setRoiData({
           labels: roiGrowthRes.data.labels,
           data: roiGrowthRes.data.data,
         });
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -122,12 +133,12 @@ const Dashboard = () => {
     }
   };
 
-  const performanceChartData = {
-    labels: performanceData.labels,
+  const accountValueChartData = {
+    labels: accountValueData.labels,
     datasets: [
       {
-        label: 'Total Portfolio Value',
-        data: performanceData.data,
+        label: 'Total Account Value',
+        data: accountValueData.data,
         fill: true,
         tension: 0.5,
         borderColor: 'rgb(0, 255, 102)',
@@ -146,6 +157,47 @@ const Dashboard = () => {
         borderWidth: 3,
       },
     ],
+  };
+
+  const accountValueChartOptions = {
+    responsive: true,
+    animation: {
+      duration: 2000,
+      easing: 'easeOutElastic',
+    },
+    layout: { padding: { top: 50, bottom: 30 } },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(30, 30, 47, 0.9)',
+        titleColor: '#fff',
+        bodyColor: '#00ff66',
+        borderColor: '#00ccff',
+        borderWidth: 2,
+        cornerRadius: 8,
+        padding: 12,
+        callbacks: {
+          label: (ctx) => `Portfolio: $${ctx.parsed.y.toLocaleString()}`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)', lineWidth: 1 },
+        ticks: { color: '#94a3b8', font: { size: 14 } },
+      },
+      y: {
+        beginAtZero: false,
+        grid: { color: 'rgba(255, 255, 255, 0.05)', lineWidth: 1 },
+        ticks: {
+          color: '#94a3b8',
+          font: { size: 14 },
+          callback: (val) => `$${val.toLocaleString()}`,
+        },
+        suggestedMin: Math.min(...(accountValueData.data || [0])) * 0.8 || 0,
+        suggestedMax: Math.max(...(accountValueData.data || [5000])) * 1.2 || 6000,
+      },
+    },
   };
 
   const roiChartData = {
@@ -172,50 +224,6 @@ const Dashboard = () => {
         borderWidth: 3,
       },
     ],
-  };
-
-  const performanceChartOptions = {
-    responsive: true,
-    animation: {
-      duration: 2000,
-      easing: 'easeOutElastic',
-    },
-    layout: { padding: { top: 50, bottom: 30 } },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: 'rgba(30, 30, 47, 0.9)',
-        titleColor: '#fff',
-        bodyColor: '#00ff66',
-        borderColor: '#00ccff',
-        borderWidth: 2,
-        cornerRadius: 8,
-        padding: 12,
-        callbacks: {
-          label: (ctx) =>
-            ctx.dataset.label === 'Total Portfolio Value'
-              ? `Portfolio: $${ctx.parsed.y.toLocaleString()}`
-              : `${ctx.parsed.y.toFixed(2)}%`,
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: { color: 'rgba(255, 255, 255, 0.05)', lineWidth: 1 },
-        ticks: { color: '#94a3b8', font: { size: 14 } },
-      },
-      y: {
-        beginAtZero: false,
-        grid: { color: 'rgba(255, 255, 255, 0.05)', lineWidth: 1 },
-        ticks: {
-          color: '#94a3b8',
-          font: { size: 14 },
-          callback: (val) => `$${val.toLocaleString()}`,
-        },
-        suggestedMin: 0,
-        suggestedMax: Math.max(...(performanceData.data || [5000])) * 1.2 || 6000,
-      },
-    },
   };
 
   const roiChartOptions = {
@@ -360,9 +368,9 @@ const Dashboard = () => {
                 </motion.div>
                 <div className="mt-3 text-base">
                   {currentRoi >= 0 ? (
-                    <span className="text-green-200">Profit</span>
+                    <span className="text-green-400">Profit</span>
                   ) : (
-                    <span className="text-red-200">Loss</span>
+                    <span className="text-red-400">Loss</span>
                   )}
                 </div>
               </motion.div>
@@ -401,7 +409,7 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="chart-container">
-                <Line data={performanceChartData} options={performanceChartOptions} />
+                <Line data={accountValueChartData} options={accountValueChartOptions} />
               </div>
             </motion.div>
 
@@ -454,7 +462,6 @@ const Dashboard = () => {
                       </tr>
                     ) : (
                       summaries.map((summary, index) => {
-                        // Calculate ending_balance as initial_investment_amount + profit for the latest quarter
                         const isLatestQuarter = index === summaries.length - 1;
                         const endingBalance = isLatestQuarter
                           ? (profile?.initial_investment_amount || 0) + (profile?.profit || 0)

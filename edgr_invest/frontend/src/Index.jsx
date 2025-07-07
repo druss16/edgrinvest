@@ -3,8 +3,8 @@ import { ArrowRight, TrendingUp, Users, Shield, Globe, Mail, Phone, MapPin, Menu
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-// import alImage from './assets/edgr_pic_al.jpg';
-// import danImage from './assets/edgr_pic_dan.jpg';
+import alImage from './assets/edgr_pic_al.jpg';
+import danImage from './assets/edgr_pic_dan.jpg';
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,12 +37,12 @@ const Index = () => {
     {
       name: "Al",
       role: "Chief Investment Officer",
-      image: "/static/assets/edgr_pic_al.jpg"
+      image: alImage
     },
     {
       name: "Dan",
       role: "Portfolio Manager",
-      image: "/static/assets/edgr_pic_dan.jpg"
+      image: danImage
     }
   ];
 
@@ -217,7 +217,6 @@ const Index = () => {
       </section>
 
       {/* Team Section */}
-      // Team Section
       <section id="team" className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -227,7 +226,7 @@ const Index = () => {
               Meet the experienced professionals who guide our investment strategies and client relationships.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-3 gap-12">
             {team.map((member, index) => (
               <div key={index} className="text-center group">
                 <div className="relative mb-6 overflow-hidden rounded-2xl">
@@ -235,8 +234,6 @@ const Index = () => {
                     src={member.image}
                     alt={member.name}
                     className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-transparent to-transparent"></div>
                   <div className="absolute bottom-6 left-6 text-white">
