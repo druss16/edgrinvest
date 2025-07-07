@@ -1,11 +1,24 @@
+# edgr_invest/settings/prod.py
 from .base import *
 import os
 
 DEBUG = False
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'edgr-invest.onrender.com,edgrinvest.com,www.edgrinvest.com').split(',')
+ALLOWED_HOSTS = ['edgr-invest.onrender.com', 'edgrinvest.com', 'www.edgrinvest.com']
 
-# Security settings for HTTPS
+CORS_ALLOWED_ORIGINS = [
+    'https://edgrinvest.com',
+    'https://www.edgrinvest.com',
+    'https://edgr-invest.onrender.com',
+]
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://edgr-invest.onrender.com',
+    'https://edgrinvest.com',
+    'https://www.edgrinvest.com',
+]
+
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -15,21 +28,15 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 X_FRAME_OPTIONS = 'DENY'
 
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
-EMAIL_HOST = os.getenv("EMAIL_HOST")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'info@edgrinvest.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'eqwrkpynozolcorf')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'EDGR Invest <info@edgrinvest.com>')
 
-
-
-
-# Whitenoise for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Ensure SECRET_KEY is set via environment variable
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # Optional: Logging for production

@@ -92,8 +92,11 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:8080",
+    'http://localhost:5173',  # Keep for development
+    'http://localhost:8080',
+    'https://edgrinvest.com',  # Add production frontend domain
+    'https://www.edgrinvest.com',
+    'https://edgr-invest.onrender.com',  # If frontend is hosted on Render
 ]
 
 CSRF_TRUSTED_ORIGINS = [
