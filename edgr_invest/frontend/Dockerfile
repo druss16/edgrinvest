@@ -1,9 +1,16 @@
 # Build stage
 FROM node:20 AS build
+
+# Inject the env var into the build
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+
+# Vite will pick up the ENV during build
 RUN npm run build
 
 # Serve stage
