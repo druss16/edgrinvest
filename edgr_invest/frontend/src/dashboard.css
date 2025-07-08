@@ -14,11 +14,10 @@
   position: relative;
 }
 
-
 @media (max-width: 768px) {
   .dashboard-container {
     transform: scale(1);
-    font-size: 0.95rem; /* Reduced from 1rem */
+    font-size: 0.95rem;
   }
 }
 
@@ -26,43 +25,43 @@
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2); /* Reduced shadow */
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 0.75rem; /* Reduced from 1rem */
-  padding: 1rem; /* Reduced from 1.25rem */
-  font-size: 0.85rem; /* Reduced from 0.9rem */
+  border-radius: 0.75rem;
+  padding: 1rem;
+  font-size: 0.85rem;
 }
 
 .card-glass:hover {
-  transform: translateY(-4px); /* Reduced from -5px */
-  box-shadow: 0 10px 32px rgba(0, 255, 102, 0.3); /* Reduced shadow */
+  transform: translateY(-4px);
+  box-shadow: 0 10px 32px rgba(0, 255, 102, 0.3);
 }
 
 .blue-button {
   background: linear-gradient(45deg, hsl(220, 70%, 50%), hsl(200, 70%, 50%));
   border: none;
   color: #fff;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8); /* Reduced glow */
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5); /* Reduced shadow */
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
   transition: all 0.3s ease;
-  border-radius: 0.4rem; /* Reduced from 0.5rem */
-  padding: 0.35rem 0.7rem; /* Reduced from 0.4rem 0.8rem */
-  font-size: 0.8rem; /* Reduced from 0.85rem */
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
 }
 
 .blue-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.7); /* Reduced shadow */
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.7);
 }
 
 .text-neon {
   color: #00ff66;
-  text-shadow: 0 0 8px rgba(0, 255, 102, 0.5); /* Reduced glow */
+  text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
 }
 
 .blue-neon {
   color: hsl(220, 70%, 50%);
-  text-shadow: 0 0 8px rgba(59, 130, 246, 0.5); /* Reduced glow */
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
 }
 
 h1, h2, h3 {
@@ -80,7 +79,7 @@ h1, h2, h3 {
 .chart-container {
   position: relative;
   width: 100%;
-  height: 260px; /* Reduced from 300px */
+  height: 260px;
 }
 
 .loading-splash {
@@ -94,12 +93,12 @@ h1, h2, h3 {
 }
 
 .loading-bar-container {
-  width: 260px; /* Reduced from 300px */
-  height: 5px; /* Reduced from 6px */
+  width: 260px;
+  height: 5px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2.5px; /* Reduced from 3px */
+  border-radius: 2.5px;
   overflow: hidden;
-  margin-top: 0.75rem; /* Reduced from 1rem */
+  margin-top: 0.75rem;
 }
 
 .loading-bar {
@@ -110,21 +109,51 @@ h1, h2, h3 {
 }
 
 @keyframes loading {
-  0% {
-    transform: translateX(-100%);
-  }
-  50% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0); }
+  100% { transform: translateX(100%); }
 }
 
 .dashboard-content {
   width: 100%;
-  max-width: 900px; /* Reduced from 1000px */
+  max-width: 900px;
   margin: 0 auto;
-  padding: 1.5rem; /* Reduced from 2rem */
+  padding: 1.5rem;
   background: transparent;
+}
+
+/* ========================= */
+/* NEW: TABLE STYLING BELOW */
+/* ========================= */
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #f1f5f9;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Align numeric cells to right and use monospaced font for consistency */
+.dashboard-table th.numeric,
+.dashboard-table td.numeric {
+  text-align: right;
+  font-family: 'Courier New', Courier, monospace;
+  font-variant-numeric: tabular-nums; /* ensures consistent width for all digits */
+}
+
+/* Table header styling */
+.dashboard-table thead th {
+  background-color: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }

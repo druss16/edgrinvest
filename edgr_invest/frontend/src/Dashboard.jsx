@@ -451,15 +451,16 @@ const Dashboard = () => {
                 <table className="w-full text-base">
                   <thead>
                     <tr className="bg-gray-800 border-b-2 border-teal-500">
-                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Quarter</th>
-                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Principal</th>
-                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Div %</th>
-                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Dividend</th>
-                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Unrealized</th>
-                      <th className="py-3 px-5 text-left text-teal-300 font-medium">Paid</th>
-                      <th className="py-3 px-5 text-left text-teal-300 font-medium">End Bal</th>
+                      <th className="py-3 px-5 text-center text-teal-300 font-medium">Quarter</th>
+                      <th className="py-3 px-5 text-center text-teal-300 font-medium">Principal</th>
+                      <th className="py-3 px-5 text-center text-teal-300 font-medium">Div %</th>
+                      <th className="py-3 px-5 text-center text-teal-300 font-medium">Dividend</th>
+                      <th className="py-3 px-5 text-center text-teal-300 font-medium">Unrealized</th>
+                      <th className="py-3 px-5 text-center text-teal-300 font-medium">Paid</th>
+                      <th className="py-3 px-5 text-center text-teal-300 font-medium">Current Balance</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {summaries.length === 0 ? (
                       <tr>
@@ -473,6 +474,7 @@ const Dashboard = () => {
                         const endingBalance = isLatestQuarter
                           ? (profile?.initial_investment_amount || 0) + (profile?.profit || 0)
                           : summary.ending_balance;
+
                         return (
                           <motion.tr
                             key={summary.id}
@@ -481,30 +483,31 @@ const Dashboard = () => {
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <td className="py-3 px-5 text-white">{summary.quarter}</td>
-                            <td className="py-3 px-5 text-green-400">
-                              ${summary.beginning_balance.toLocaleString()}
+                            <td className="py-3 px-5 text-white text-center">{summary.quarter}</td>
+                            <td className="py-3 px-5 text-green-400 text-center">
+                              {Number(summary.beginning_balance).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                             </td>
-                            <td className="py-3 px-5 text-yellow-400">
+                            <td className="py-3 px-5 text-yellow-400 text-center">
                               {formatNumber(summary.dividend_percent)}%
                             </td>
-                            <td className="py-3 px-5 text-yellow-400">
-                              ${summary.dividend_amount.toLocaleString()}
+                            <td className="py-3 px-5 text-yellow-400 text-center">
+                              {Number(summary.dividend_amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                             </td>
-                            <td className="py-3 px-5 text-green-400">
-                              ${summary.unrealized_gain.toLocaleString()}
+                            <td className="py-3 px-5 text-green-400 text-center">
+                              {Number(summary.unrealized_gain).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                             </td>
-                            <td className="py-3 px-5 text-yellow-400">
-                              ${summary.dividend_paid.toLocaleString()}
+                            <td className="py-3 px-5 text-yellow-400 text-center">
+                              {Number(summary.dividend_paid).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                             </td>
-                            <td className="py-3 px-5 text-green-400">
-                              ${endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            <td className="py-3 px-5 text-green-400 text-center">
+                              {Number(endingBalance).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                             </td>
                           </motion.tr>
                         );
                       })
                     )}
                   </tbody>
+
                 </table>
               </div>
             </motion.div>
