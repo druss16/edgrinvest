@@ -608,7 +608,9 @@ class PasswordResetView(APIView):
         if form.is_valid():
             form.save(
                 request=request,
-                use_https=request.is_secure(),
+                use_https=True,
+                from_email='noreply@edgrinvest.com',
+                domain_override='edgrinvest.com',
                 email_template_name='account/password_reset_email.html',
             )
             return Response({"message": "Password reset link sent"}, status=status.HTTP_200_OK)

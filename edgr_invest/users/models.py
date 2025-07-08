@@ -103,7 +103,7 @@ class InvestmentSummary(models.Model):
 
 class InvestmentSummaryDeux(models.Model):
     user_id = models.BigIntegerField(db_index=True)
-    quarter = models.CharField(max_length=6)  # e.g., "Q2-25"
+    quarter = models.CharField(max_length=15)  # e.g., "Q2-25"
     beginning_balance = models.DecimalField(max_digits=12, decimal_places=2)
     dividend_percent = models.DecimalField(max_digits=5, decimal_places=2)
     dividend_amount = models.DecimalField(max_digits=12, decimal_places=2)
