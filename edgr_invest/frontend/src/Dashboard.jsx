@@ -48,6 +48,8 @@ const Dashboard = () => {
         setProfile({
           username: profileRes.data.username,
           email: profileRes.data.email,
+          first_name: profileRes.data.first_name,
+          last_name: profileRes.data.last_name,
           total_portfolio_value: profileRes.data.total_portfolio_value,
           initial_investment_amount: profileRes.data.initial_investment_amount,
           unrealized_gain: profileRes.data.unrealized_gain,
@@ -293,7 +295,12 @@ const Dashboard = () => {
             transition={{ duration: 0.4 }}
           >
             <h1 className="text-2xl md:text-3xl font-bold text-white">
-              Welcome, <span className="text-white">{profile?.username || profile?.email || 'User'}</span>
+              Welcome,{' '}
+              <span className="text-white">
+                {profile?.first_name && profile?.last_name
+                  ? `${profile.first_name} ${profile.last_name}`
+                  : profile?.username || profile?.email || 'User'}
+              </span>
             </h1>
             <motion.button
               onClick={handleLogout}

@@ -31,6 +31,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = [
             'username',
+            'first_name',
+            'last_name',
             'total_portfolio_value',
             'initial_investment_amount',
             'unrealized_gain',
