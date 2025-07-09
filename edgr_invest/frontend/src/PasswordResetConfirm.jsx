@@ -19,12 +19,12 @@ const PasswordResetConfirm = () => {
     setError('');
     setMessage('');
     if (password1 !== password2) {
-      setError("Passwords do not match.");
+      setError('Passwords do not match.');
       return;
     }
 
     try {
-      const res = await api.post('/auth/password-reset-confirm/', {
+      const res = await api.post('/password-reset-confirm/', {
         uid,
         token,
         new_password1: password1,

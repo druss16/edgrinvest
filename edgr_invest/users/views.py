@@ -70,23 +70,6 @@ def user_settings(request):
     return render(request, 'users/user_settings.html', {'form': form})
 
 
-# users/views.py
-from .forms import ChangePasswordForm
-
-@login_required
-def change_password(request):
-    if request.method == 'POST':
-        form = ChangePasswordForm(request.user, request.POST)
-        if form.is_valid():
-            new_password = form.cleaned_data.get('new_password')
-            request.user.set_password(new_password)
-            request.user.save()
-            messages.success(request, 'Password changed successfully. Please log in again.')
-            return redirect('account_login')
-    else:
-        form = ChangePasswordForm(request.user)
-
-    return render(request, 'users/change_password.html', {'form': form})
 
 
 
@@ -614,7 +597,7 @@ class PasswordResetView(APIView):
                 domain_override='edgrinvest.com',
                 email_template_name='account/password_reset_email.html',
                 subject_template_name='account/password_reset_subject.txt',
-                html_email_template_name='account/password_reset_email.html',  # Explicitly set HTML template
+                # html_email_template_name='account/password_reset_email.html',  # Explicitly set HTML template
             )
             return Response({"message": "Password reset link sent"}, status=status.HTTP_200_OK)
         else:
@@ -657,6 +640,18 @@ import logging
 logger = logging.getLogger(__name__)
 UserModel = get_user_model()
 
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+import logging
+
+logger = logging.getLogger(__name__)
+UserModel = get_user_model()
+
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
@@ -666,26 +661,33 @@ class PasswordResetConfirmView(APIView):
         new_password1 = request.data.get('new_password1')
         new_password2 = request.data.get('new_password2')
 
+        if not all([uidb64, token, new_password1, new_password2]):
+            logger.warning('Password reset failed: missing required fields')
+            return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
+
         if new_password1 != new_password2:
+            logger.warning('Password reset failed: passwords do not match')
             return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
             user = UserModel.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, UserModel.DoesNotExist) as e:
-            logger.warning(f"Password reset failed: could not decode uid or find user: {str(e)}")
+            logger.warning(f'Password reset failed: could not decode uid or find user: {str(e)}')
             return Response({'error': 'Invalid user'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not default_token_generator.check_token(user, token):
-            logger.warning(f"Password reset failed: invalid token for user {user.pk}")
+            logger.warning(f'Password reset failed: invalid token for user {user.pk}')
             return Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user.set_password(new_password1)
-        user.save()
-
-        logger.info(f"Password reset successful for user ID: {user.pk}")
-        return Response({'message': 'Password has been reset successfully'}, status=status.HTTP_200_OK)
-
+        try:
+            user.set_password(new_password1)
+            user.save()
+            logger.info(f'Password reset successful for user ID: {user.pk}')
+            return Response({'message': 'Password has been reset successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f'Password reset failed for user ID: {user.pk}: {str(e)}')
+            return Response({'error': 'Failed to reset password'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class InvestmentListView(APIView):
     permission_classes = [IsAuthenticated]

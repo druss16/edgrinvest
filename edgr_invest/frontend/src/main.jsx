@@ -20,7 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/waitlist" element={<Waitlist />} /> {/* ✅ Add this */}
         <Route path="/waitlist-thankyou" element={<WaitlistThankYou />} />
         <Route path="/reset-password" element={<PasswordReset />} />
-        <Route path="/reset-password-confirm/:uid/:token" element={<PasswordResetConfirm />} />
+        <Route path="/reset/:uid/:token" element={<PasswordResetConfirm />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
