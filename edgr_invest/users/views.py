@@ -583,15 +583,16 @@ class FinalWaitlistApiView(APIView):
 
         return Response({'message': 'Successfully joined waitlist!'}, status=201)
 
-from rest_framework import status
+
+from .serializers import PasswordResetSerializer
+
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework import status
 from django.contrib.auth.forms import PasswordResetForm
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-
-from .serializers import PasswordResetSerializer
 
 @method_decorator(csrf_exempt, name='dispatch')
 class PasswordResetView(APIView):
@@ -612,6 +613,8 @@ class PasswordResetView(APIView):
                 from_email='noreply@edgrinvest.com',
                 domain_override='edgrinvest.com',
                 email_template_name='account/password_reset_email.html',
+                subject_template_name='account/password_reset_subject.txt',
+                html_email_template_name='account/password_reset_email.html',  # Explicitly set HTML template
             )
             return Response({"message": "Password reset link sent"}, status=status.HTTP_200_OK)
         else:
