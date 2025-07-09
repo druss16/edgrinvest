@@ -34,6 +34,7 @@ const PasswordResetConfirm = () => {
       setTimeout(() => navigate('/login'), 2500);
     } catch (err) {
       setError(err.response?.data?.error || 'Reset failed. Please try again.');
+      console.error('API error:', err); // Log the error for debugging
     }
   };
 
