@@ -14,7 +14,7 @@ const Index = () => {
     {
       icon: TrendingUp,
       title: "Investment Management",
-      description: "Comprehensive portfolio management services tailored to your financial goals and risk tolerance."
+      description: "Index Fund portfolio management."
     },
     {
       icon: Users,
@@ -36,12 +36,12 @@ const Index = () => {
   const team = [
     {
       name: "Al",
-      role: "Chief Investment Officer",
+      role: "Co-Founder",
       image: alImage
     },
     {
       name: "Dan",
-      role: "Portfolio Manager",
+      role: "Co-Founder",
       image: danImage
     }
   ];
@@ -120,14 +120,10 @@ const Index = () => {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto animate-fade-in">
-              At EDGR Invest, we combine decades of expertise with innovative strategies to deliver exceptional returns for our clients.
-            </p>
+                At EDGR Invest, we fuse decades of market data with cutting-edge innovation, strategic insight, and rigorous analysis to deliver secure and exceptional returns for our clients.             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
               <Button size="lg" className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-500 hover:to-blue-700 text-lg px-8 py-4 shadow-lg shadow-blue-900/50" onClick={handleClientPortalClick}>
                 Client Portal <ArrowRight className="ml-2" size={20} />
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-blue-500 text-blue-400 hover:bg-blue-950 hover:text-blue-300">
-                Learn More
               </Button>
             </div>
           </div>
@@ -153,16 +149,16 @@ const Index = () => {
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">Strategic Investment</span>
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                EDGR Invest is dedicated to providing personalized investment solutions that align with your financial goals. Our team of experts leverages cutting-edge strategies to maximize returns while minimizing risks.
+                The first and only truly independent sports index fund—built to perform, shielded from the volatility of external market trends.
               </p>
               <div className="grid grid-cols-2 gap-8">
                 <div className="p-4 bg-white rounded-lg border-l-4 border-blue-600 shadow-sm">
-                  <div className="text-3xl font-bold text-blue-800 mb-2">$2.5B+</div>
+                  <div className="text-3xl font-bold text-blue-800 mb-2">$100k+</div>
                   <div className="text-gray-600">Assets Under Management</div>
                 </div>
                 <div className="p-4 bg-white rounded-lg border-l-4 border-blue-600 shadow-sm">
-                  <div className="text-3xl font-bold text-blue-800 mb-2">15+</div>
-                  <div className="text-gray-600">Years of Excellence</div>
+                  <div className="text-3xl font-bold text-blue-800 mb-2">50+</div>
+                  <div className="text-gray-600">Years of Industry Analytics</div>
                 </div>
               </div>
             </div>
