@@ -19,28 +19,28 @@ const Index = () => {
     {
       icon: Users,
       title: "Wealth Advisory",
-      description: "Strategic wealth planning and advisory services for high-net-worth individuals and families."
+      description: "High performance management with zero fees, combining the financial power of index funds, high yield savings and CDs."
     },
     {
       icon: Shield,
       title: "Risk Management",
-      description: "Advanced risk assessment and mitigation strategies to protect and grow your investments."
+      description: "Restriction based investment strategiesd built for stable."
     },
     {
       icon: Globe,
-      title: "Global Markets",
+      title: "Independent Markets",
       description: "Access to international investment opportunities and global market insights."
     }
   ];
 
   const team = [
     {
-      name: "Al",
+      name: "Albert Cutri",
       role: "Co-Founder",
       image: alImage
     },
     {
-      name: "Dan",
+      name: "Daniel Russell",
       role: "Co-Founder",
       image: danImage
     }
@@ -174,7 +174,7 @@ const Index = () => {
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Our Investment Services</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Comprehensive investment solutions tailored to meet your unique financial objectives and risk profile.
+              Building greater trust equals building great wealth. Priortizing client portfolio dividends 
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -219,12 +219,14 @@ const Index = () => {
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Our Leadership Team</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-blue-800 mx-auto mb-6"></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Meet the experienced professionals who guide our investment strategies and client relationships.
+              Meet the Founders and Operators who guide our investment strategies and client relationships with over 20 years of business development and growth, understanding the power of niche and focused markets.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-12">
+
+          {/* Responsive centering for 1-2 items */}
+          <div className="flex flex-wrap justify-center gap-12">
             {team.map((member, index) => (
-              <div key={index} className="text-center group">
+              <div key={index} className="w-full sm:w-80 text-center group">
                 <div className="relative mb-6 overflow-hidden rounded-2xl">
                   <img
                     src={member.image}
@@ -232,7 +234,7 @@ const Index = () => {
                     className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-6 left-6 text-white">
+                  <div className="absolute bottom-6 left-6 text-white text-left">
                     <h3 className="text-2xl font-bold mb-1">{member.name}</h3>
                     <p className="text-lg text-blue-200">{member.role}</p>
                   </div>
@@ -247,22 +249,18 @@ const Index = () => {
       <section id="contact" className="py-24 bg-black text-white relative">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 to-blue-950"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-900/10 rounded-full blur-3xl"></div>
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Start Your Investment Journey</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-blue-600 mx-auto mb-6"></div>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Ready to take control of your financial future? Contact our team to discuss your investment goals.
+              Contact our team to discuss your investment goals.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-12 mb-16">
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-blue-600 to-blue-800 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-900/50">
-                <Phone className="text-white" size={28} />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Phone</h3>
-              <p className="text-gray-300">+1 (555) 123-4567</p>
-            </div>
+
+          {/* Centered Flex Layout for Contact Options */}
+          <div className="flex flex-wrap justify-center gap-12 mb-16">
             <div className="text-center">
               <div className="bg-gradient-to-br from-blue-600 to-blue-800 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-900/50">
                 <Mail className="text-white" size={28} />
@@ -270,21 +268,27 @@ const Index = () => {
               <h3 className="text-xl font-bold mb-2">Email</h3>
               <p className="text-gray-300">info@edgrinvest.com</p>
             </div>
+
             <div className="text-center">
               <div className="bg-gradient-to-br from-blue-600 to-blue-800 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-900/50">
                 <MapPin className="text-white" size={28} />
               </div>
               <h3 className="text-xl font-bold mb-2">Office</h3>
-              <p className="text-gray-300">New York, NY</p>
+              <p className="text-gray-300">New York | Nashville | Tampa</p>
             </div>
           </div>
+
           <div className="text-center">
-            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-500 hover:to-blue-700 text-lg px-12 py-4 shadow-lg shadow-blue-900/50">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-500 hover:to-blue-700 text-lg px-12 py-4 shadow-lg shadow-blue-900/50"
+            >
               Schedule a Consultation <ArrowRight className="ml-2" size={20} />
             </Button>
           </div>
         </div>
       </section>
+
 
       {/* Footer */}
       <footer className="bg-slate-900 text-white py-16 border-t border-slate-700">
@@ -294,7 +298,7 @@ const Index = () => {
               <div className="text-2xl font-bold text-white mb-4">EDGR Invest</div>
               <div className="w-16 h-1 bg-gradient-to-r from-blue-500 to-blue-700 mb-4"></div>
               <p className="text-gray-400 mb-6 max-w-md">
-                A premier investment management firm dedicated to helping our clients achieve their financial goals through disciplined, research-driven investment strategies.
+                A premier investment management firm dedicated to helping our clients achieve their financial goals through disciplined, data-driven investment strategies.
               </p>
             </div>
             <div>
@@ -303,7 +307,7 @@ const Index = () => {
                 <li><a href="#" className="hover:text-blue-400 transition-colors">Investment Management</a></li>
                 <li><a href="#" className="hover:text-blue-400 transition-colors">Wealth Advisory</a></li>
                 <li><a href="#" className="hover:text-blue-400 transition-colors">Risk Management</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Global Markets</a></li>
+                <li><a href="#" className="hover:text-blue-400 transition-colors">Independent Markets</a></li>
               </ul>
             </div>
             <div>
