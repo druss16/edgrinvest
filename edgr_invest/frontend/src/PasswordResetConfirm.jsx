@@ -24,7 +24,7 @@ const PasswordResetConfirm = () => {
     }
 
     try {
-      const res = await api.post('/password-reset-confirm/', {
+      const res = await api.post('/api/users/password-reset-confirm/', {
         uid,
         token,
         new_password1: password1,
@@ -33,8 +33,12 @@ const PasswordResetConfirm = () => {
       setMessage('Password reset successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2500);
     } catch (err) {
+      console.error('API error:', {
+        status: err.response?.status,
+        data: err.response?.data,
+        message: err.message,
+      });
       setError(err.response?.data?.error || 'Reset failed. Please try again.');
-      console.error('API error:', err); // Log the error for debugging
     }
   };
 
