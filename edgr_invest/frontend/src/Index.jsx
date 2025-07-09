@@ -3,6 +3,7 @@ import { ArrowRight, TrendingUp, Users, Shield, Globe, Mail, Phone, MapPin, Menu
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import alImage from './assets/edgr_pic_al.jpg';
 import danImage from './assets/edgr_pic_dan.jpg';
 
@@ -149,7 +150,7 @@ const Index = () => {
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">Strategic Investment</span>
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                The first and only truly independent sports index fund—built to perform, shielded from the volatility of external market trends.
+                The first and only truly independent Sports Index Fund (SIF)—built to perform, shielded from the volatility of external market trends.
               </p>
               <div className="grid grid-cols-2 gap-8">
                 <div className="p-4 bg-white rounded-lg border-l-4 border-blue-600 shadow-sm">
@@ -279,12 +280,14 @@ const Index = () => {
           </div>
 
           <div className="text-center">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-500 hover:to-blue-700 text-lg px-12 py-4 shadow-lg shadow-blue-900/50"
-            >
-              Schedule a Consultation <ArrowRight className="ml-2" size={20} />
-            </Button>
+            <Link to="/waitlist">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-500 hover:to-blue-700 text-lg px-12 py-4 shadow-lg shadow-blue-900/50"
+              >
+                Schedule a Consultation <ArrowRight className="ml-2" size={20} />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
