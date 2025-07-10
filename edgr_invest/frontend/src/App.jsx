@@ -8,6 +8,7 @@ import PasswordReset from './PasswordReset';
 import Waitlist from './Waitlist';
 import WaitlistThankYou from './WaitlistThankyou';
 import PasswordResetConfirm from './PasswordResetConfirm';
+import AddInvestmentSummary from './AddInvestmentSummary';
 import './App.css';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/waitlist" element={<Waitlist />} />
         <Route path="/waitlist-thankyou" element={<WaitlistThankYou />} />
         <Route path="/reset/:uid/:token" element={<PasswordResetConfirm />} />
+        <Route path="/add-summary" element={<AddInvestmentSummary />} />
         <Route path="/" element={<Index />} />
       </Routes>
     </BrowserRouter>

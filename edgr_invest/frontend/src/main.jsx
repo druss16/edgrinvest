@@ -8,6 +8,7 @@ import Waitlist from './Waitlist.jsx'; // ✅ Add this
 import PasswordReset from './PasswordReset';
 import PasswordResetConfirm from './PasswordResetConfirm';
 import WaitlistThankYou from './WaitlistThankYou';
+import AddInvestmentSummary from './AddInvestmentSummary';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -21,6 +22,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/waitlist-thankyou" element={<WaitlistThankYou />} />
         <Route path="/reset-password" element={<PasswordReset />} />
         <Route path="/reset/:uid/:token" element={<PasswordResetConfirm />} />
+        <Route path="/add-summary" element={<AddInvestmentSummary />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

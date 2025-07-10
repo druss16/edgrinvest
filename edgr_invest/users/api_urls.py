@@ -1,5 +1,3 @@
-# users/api_urls.py
-
 from django.urls import path
 from . import views
 from users.views import FinalWaitlistApiView, PasswordResetView, PasswordResetConfirmView
@@ -28,6 +26,4 @@ urlpatterns = [
     path('waitlist-test/', views.WaitlistTest.as_view(), name='waitlist-test'),
     path('password-reset/', PasswordResetView.as_view(), name='password-reset'),
     path('password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
-
-
 ]

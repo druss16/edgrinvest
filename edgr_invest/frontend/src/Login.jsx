@@ -20,11 +20,12 @@ const Login = () => {
           const response = await api.get('/api/users/profile/', {
             headers: { Authorization: `Token ${token}` },
           });
-          console.log('User is authenticated:', response.data.username);
+          console.log('User is authenticated:', response.data);
           navigate('/dashboard', { replace: true });
         } catch (error) {
           console.error('Token validation failed:', error.response?.data || error.message);
           localStorage.removeItem('token');
+          localStorage.removeItem('user');
           setError('Session expired. Please log in again.');
         }
       }
@@ -66,8 +67,13 @@ const Login = () => {
         },
         withCredentials: true,
       });
+      localStorage.setItem('user', JSON.stringify({
+        id: response.data.user_id,
+        email: response.data.username, // Since username is email
+        is_staff: response.data.is_staff
+      }));
       localStorage.setItem('token', response.data.token);
-      console.log('Login successful:', response.data.username);
+      console.log('Login successful:', response.data);
       navigate('/dashboard', { replace: true });
     } catch (error) {
       setError(error.response?.data?.error || 'Invalid credentials. Please try again.');

@@ -378,7 +378,79 @@ from .serializers import (
 from .models import WaitlistSignup, CustomUser, Investment, InvestmentSummary, InvestmentSummaryDeux
 import logging
 
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import login, logout, authenticate
+from django.middleware.csrf import get_token
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordResetForm
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from decimal import Decimal
+import json
+import csv
+import logging
+from .models import Investment, UserProfile, WaitlistSignup, CustomUser, InvestmentSummary, InvestmentSummaryDeux
+from .forms import InvestmentSummaryForm, UserSettingsForm, WaitlistSignupForm
+from .serializers import (
+    ServiceSerializer, TeamMemberSerializer, WaitlistSignupSerializer,
+    CustomUserSerializer, InvestmentSerializer, InvestmentSummarySerializer,
+    InvestmentSummaryDeuxSerializer
+)
+
 logger = logging.getLogger(__name__)
+
+@staff_member_required
+def add_investment_summary(request):
+    form = InvestmentSummaryForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('users:investment_dashboard')
+    return render(request, 'users/add_investment_summary.html', {'form': form})
+
+class InvestmentSummaryDeuxListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching InvestmentSummaryDeux for user ID: {request.user.id}")
+            summaries = InvestmentSummaryDeux.objects.filter(user_id=request.user.id).order_by('-quarter')
+            serializer = InvestmentSummaryDeuxSerializer(summaries, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in InvestmentSummaryDeuxListView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# Updated AddInvestmentSummaryView to handle JSON from React
+class AddInvestmentSummaryView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        try:
+            logger.info(f"Adding investment summary by admin: {request.user.username}")
+            # Use serializer to validate JSON data
+            serializer = InvestmentSummaryDeuxSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "Investment summary added successfully"}, status=status.HTTP_201_CREATED)
+            logger.warning(f"Invalid data: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Error in AddInvestmentSummaryView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -730,7 +802,6 @@ class InvestmentSummaryDeuxListView(APIView):
 
 class CustomAuthToken(APIView):
     permission_classes = [AllowAny]
-
     def post(self, request):
         try:
             username = request.data.get('username')
@@ -743,7 +814,8 @@ class CustomAuthToken(APIView):
                 return Response({
                     'token': token.key,
                     'user_id': user.id,
-                    'username': user.username
+                    'username': user.username,
+                    'is_staff': user.is_staff
                 }, status=status.HTTP_200_OK)
             logger.warning(f"Invalid login attempt for username: {username}")
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)

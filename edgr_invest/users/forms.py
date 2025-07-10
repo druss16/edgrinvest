@@ -55,69 +55,6 @@ from users.models import InvestmentSummary, CustomUser
 from django import forms
 from users.models import InvestmentSummary, CustomUser, InvestmentSummaryDeux
 
-# class InvestmentSummaryForm(forms.ModelForm):
-#     user = forms.ModelChoiceField(
-#         queryset=CustomUser.objects.all(),
-#         label="User (Email)",
-#         to_field_name='id',
-#         widget=forms.Select(attrs={'class': 'form-control'})
-#     )
-
-#     class Meta:
-#         model = InvestmentSummary
-#         fields = [
-#             'user', 'quarter', 'beginning_balance',
-#             'dividend_percent', 'dividend_amount',
-#             'rollover_paid', 'dividend_paid', 'ending_balance'
-#         ]
-#         widgets = {
-#             'quarter': forms.TextInput(attrs={
-#                 'placeholder': 'e.g., Q2-25',
-#                 'class': 'form-control'
-#             }),
-#             'beginning_balance': forms.NumberInput(attrs={
-#                 'step': '0.01',
-#                 'class': 'form-control'
-#             }),
-#             'dividend_percent': forms.NumberInput(attrs={
-#                 'step': '0.01',
-#                 'class': 'form-control'
-#             }),
-#             'dividend_amount': forms.NumberInput(attrs={
-#                 'step': '0.01',
-#                 'class': 'form-control'
-#             }),
-#             'rollover_paid': forms.NumberInput(attrs={
-#                 'step': '0.01',
-#                 'class': 'form-control',
-#                 'placeholder': 'e.g., 250.00'
-#             }),
-#             'dividend_paid': forms.NumberInput(attrs={
-#                 'step': '0.01',
-#                 'class': 'form-control',
-#                 'placeholder': 'e.g., 250.00'
-#             }),
-#             'ending_balance': forms.NumberInput(attrs={
-#                 'step': '0.01',
-#                 'class': 'form-control'
-#             }),
-#         }
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         # Apply fallback Bootstrap class
-#         for field in self.fields.values():
-#             field.widget.attrs.setdefault('class', 'form-control')
-
-#     def save(self, commit=True):
-#         instance = super().save(commit=False)
-#         instance.user_id = self.cleaned_data['user'].id
-#         # Ensure defaulting to 0.00 if not filled
-#         instance.dividend_paid = instance.dividend_paid or 0.00
-#         instance.rollover_paid = instance.rollover_paid or 0.00
-#         if commit:
-#             instance.save()
-#         return instance
 
 
 class InvestmentSummaryForm(forms.ModelForm):
@@ -138,32 +75,22 @@ class InvestmentSummaryForm(forms.ModelForm):
 
         widgets = {
             'quarter': forms.TextInput(attrs={
-                'placeholder': 'e.g., Q2-25',
+                'placeholder': 'e.g., July 2025',
                 'class': 'form-control'
             }),
             'beginning_balance': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
             'dividend_percent': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
             'dividend_amount': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
-            'unrealized_gain': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),  # new
+            'unrealized_gain': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
             'dividend_paid': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
             'ending_balance': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs.setdefault('class', 'form-control')
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        instance.user_id = self.cleaned_data['user'].id
-        instance.dividend_paid = instance.dividend_paid or 0.00
-        instance.unrealized_gain = instance.unrealized_gain or 0.00
-        if commit:
-            instance.save()
-        return instance
-
-
+        labels = {
+            'quarter': 'Month',
+            'beginning_balance': 'Principal',
+            'ending_balance': 'Current Balance'
+        }
 class WaitlistSignupForm(forms.ModelForm):
     class Meta:
         model = WaitlistSignup

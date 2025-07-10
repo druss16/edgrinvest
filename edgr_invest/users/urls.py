@@ -1,5 +1,5 @@
 from django.urls import path
-from django.contrib.auth import views as auth_views  # ✅ Must come before usage
+from django.contrib.auth import views as auth_views
 from . import views
 
 app_name = 'users'
@@ -15,8 +15,6 @@ urlpatterns = [
     path('investment-list/', views.redirect_to_react, name='investment_list'),
     path('add-investment-summary/', views.redirect_to_react, name='add_investment_summary'),
     path('edit-investment-summary/<int:pk>/', views.redirect_to_react, name='edit_investment_summary'),
-
-    # ✅ Django password reset confirm and complete views
     path(
         'reset/<uidb64>/<token>/',
         auth_views.PasswordResetConfirmView.as_view(
