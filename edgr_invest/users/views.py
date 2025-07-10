@@ -889,7 +889,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .models import CustomUser
-from .serializers import TeamMemberSerializer
+from .serializers import TeamMemberSerializer, CustomUserListSerializer
 import logging
 
 
@@ -899,7 +899,7 @@ class UserListView(APIView):
         try:
             logger.info(f"Fetching users by: {request.user.email}")
             users = CustomUser.objects.all()
-            serializer = TeamMemberSerializer(users, many=True)
+            serializer = CustomUserListSerializer(users, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Error in UserListView: {str(e)}", exc_info=True)
