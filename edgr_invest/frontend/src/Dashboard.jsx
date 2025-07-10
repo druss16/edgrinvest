@@ -446,12 +446,12 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.5 }}
             >
-              <h3 className="text-lg font-semibold text-white mb-3">Investment Summary (Quarterly)</h3>
+              <h3 className="text-lg font-semibold text-white mb-3">Investment Summary (Monthly)</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-base">
                   <thead>
                     <tr className="bg-gray-800 border-b-2 border-teal-500">
-                      <th className="py-3 px-5 text-center text-teal-300 font-medium">Quarter</th>
+                      <th className="py-3 px-5 text-center text-teal-300 font-medium">Month</th>
                       <th className="py-3 px-5 text-center text-teal-300 font-medium">Principal</th>
                       <th className="py-3 px-5 text-center text-teal-300 font-medium">Div %</th>
                       <th className="py-3 px-5 text-center text-teal-300 font-medium">Dividend</th>
