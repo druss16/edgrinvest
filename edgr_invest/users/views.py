@@ -873,14 +873,66 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# users/views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from .serializers import InvestmentSummaryDeuxSerializer
+import logging
+
+logger = logging.getLogger(__name__)
+
+# users/views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from .models import CustomUser
+from .serializers import TeamMemberSerializer
+import logging
+
+
+class UserListView(APIView):
+    permission_classes = [IsAdminUser]
+    def get(self, request):
+        try:
+            logger.info(f"Fetching users by: {request.user.email}")
+            users = CustomUser.objects.all()
+            serializer = TeamMemberSerializer(users, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in UserListView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# users/views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from .serializers import InvestmentSummaryDeuxSerializer
+import logging
+
+logger = logging.getLogger(__name__)
+
+# users/views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAdminUser
+from .serializers import InvestmentSummaryDeuxSerializer
+import logging
+
+logger = logging.getLogger(__name__)
+
 class AddInvestmentSummaryView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
+    @method_decorator(csrf_exempt)
     def post(self, request):
         try:
-            logger.info(f"Adding investment summary for user: {request.user.email}")
-            data = request.data.copy()
-            data['user'] = request.user.id  # Auto-set user_id
-            serializer = InvestmentSummaryDeuxSerializer(data=data)
+            logger.info(f"Adding investment summary by user: {request.user.email}")
+            serializer = InvestmentSummaryDeuxSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({"message": "Investment summary added successfully"}, status=status.HTTP_201_CREATED)
