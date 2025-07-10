@@ -91,6 +91,8 @@ class InvestmentSummaryForm(forms.ModelForm):
             'beginning_balance': 'Principal',
             'ending_balance': 'Current Balance'
         }
+
+        
 class WaitlistSignupForm(forms.ModelForm):
     class Meta:
         model = WaitlistSignup

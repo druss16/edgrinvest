@@ -78,7 +78,7 @@ const AddInvestmentSummary = () => {
             response: err.response?.data,
             status: err.response?.status,
           });
-          setError('Failed to load user list.');
+          setError('Failed to load user list: ' + (err.response?.statusText || err.message));
           // Fallback to current user
           setUsers([{ id: user.id, email: user.email || 'druss16@gmail.com' }]);
         });

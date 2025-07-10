@@ -10,6 +10,11 @@ class TeamMemberSerializer(serializers.Serializer):
     role = serializers.CharField(max_length=100)
     image = serializers.URLField()
 
+class CustomUserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'username']
+
 class WaitlistSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = WaitlistSignup
