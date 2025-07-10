@@ -55,8 +55,8 @@ const AddInvestmentSummary = () => {
   // Fetch users for dropdown
   useEffect(() => {
     if (isAdmin && token) {
-      console.log('Fetching users for admin');
-      api.get('/users/', {
+      console.log('Fetching users from:', api.defaults.baseURL + '/users/');
+      api.get('api/users/users/', {
         headers: { Authorization: `Token ${token}` },
         withCredentials: true,
       })
