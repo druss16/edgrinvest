@@ -17,8 +17,9 @@ const Login = () => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await api.get('/api/users/profile/', {
+          const response = await api.get('/profile/', {
             headers: { Authorization: `Token ${token}` },
+            withCredentials: true,
           });
           console.log('User is authenticated:', response.data);
           navigate('/dashboard', { replace: true });
@@ -36,7 +37,7 @@ const Login = () => {
   useEffect(() => {
     const fetchCsrfToken = async () => {
       try {
-        const response = await api.get('/api/users/get-csrf-token/', {
+        const response = await api.get('/get-csrf-token/', {
           withCredentials: true,
         });
         setCsrfToken(response.data.csrfToken);
@@ -60,7 +61,7 @@ const Login = () => {
       return;
     }
     try {
-      const response = await api.post('/api/users/login/', credentials, {
+      const response = await api.post('/login/', credentials, {
         headers: {
           'X-CSRFToken': csrfToken,
           'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ const Login = () => {
       });
       localStorage.setItem('user', JSON.stringify({
         id: response.data.user_id,
-        email: response.data.username, // Since username is email
+        email: response.data.username,
         is_staff: response.data.is_staff
       }));
       localStorage.setItem('token', response.data.token);
