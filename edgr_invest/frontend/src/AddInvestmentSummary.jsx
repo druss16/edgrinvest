@@ -324,7 +324,6 @@ const AddInvestmentSummary = () => {
           <Button
             type="submit"
             className="w-full bg-gradient-to-r from-teal-500 to-teal-700 text-white hover:from-teal-400 hover:to-teal-600"
-            disabled={!csrfToken}
           >
             Submit Investment Summary
           </Button>
