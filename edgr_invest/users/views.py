@@ -316,8 +316,10 @@ from django.contrib.admin.views.decorators import staff_member_required
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @csrf_protect
-@staff_member_required
 def add_investment_summary_api(request):
+    if not request.user.is_staff:
+        return Response({'detail': 'Only staff members can submit summaries.'}, status=403)
+
     form = InvestmentSummaryForm(request.data)
     if form.is_valid():
         form.save()
