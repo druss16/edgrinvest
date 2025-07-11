@@ -31,7 +31,7 @@ const AddInvestmentSummary = () => {
     const fetchUsersAndCSRF = async () => {
       try {
         // Step 1: Get CSRF token
-        await api.get('/get-csrf/', { withCredentials: true });
+        await api.get('/api/users/get-csrf-token/', { withCredentials: true });
         console.log('CSRF cookie set ✅');
 
         // Step 2: Fetch users if admin
@@ -76,7 +76,7 @@ const AddInvestmentSummary = () => {
       // First, ensure CSRF cookie is set
       await api.get('/get-csrf/');
 
-      const response = await api.post('/add-investment-summary/', formData, {
+      const response = await api.post('/api/users/add-investment-summary/', formData, {
         headers: {
           Authorization: `Token ${token}`,
           // X-CSRFToken will be pulled from the cookie automatically by Axios
