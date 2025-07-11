@@ -457,14 +457,19 @@ class InvestmentSummaryDeuxListView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# Updated AddInvestmentSummaryView to handle JSON from React
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAdminUser
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
 class AddInvestmentSummaryView(APIView):
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminUser]
 
     def post(self, request):
         try:
             logger.info(f"Adding investment summary by admin: {request.user.username}")
-            # Use serializer to validate JSON data
             serializer = InvestmentSummaryDeuxSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()

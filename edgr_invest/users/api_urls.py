@@ -17,6 +17,7 @@ urlpatterns = [
     path('signup/', views.SignUpView.as_view(), name='signup'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('export-investments/', views.ExportInvestmentsView.as_view(), name='export-investments'),
+    path('add-investment-summary/', views.AddInvestmentSummaryView.as_view(), name='add-investment-summary'),
     path('edit-investment-summary/<int:pk>/', views.EditInvestmentSummaryView.as_view(), name='edit-investment-summary'),
     path('set-theme/', views.SetThemeView.as_view(), name='set-theme'),
     path('user-summaries/<int:user_id>/', views.GetUserSummariesView.as_view(), name='user-summaries'),
@@ -25,5 +26,5 @@ urlpatterns = [
     path('waitlist-test/', views.WaitlistTest.as_view(), name='waitlist-test'),
     path('password-reset/', PasswordResetView.as_view(), name='password-reset'),
     path('password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
-
+    
 ]
