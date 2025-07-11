@@ -14,7 +14,6 @@ urlpatterns = [
     path('get-csrf/', views.get_csrf_token, name="get-csrf"),
     path('add-investment-summary/', views.add_investment_summary_api, name='add_investment_summary'), 
     path('investment-list/', views.redirect_to_react, name='investment_list'),
-    path('add-investment-summary/', views.redirect_to_react, name='add_investment_summary'),
     path('edit-investment-summary/<int:pk>/', views.redirect_to_react, name='edit_investment_summary'),
     path(
         'reset/<uidb64>/<token>/',
