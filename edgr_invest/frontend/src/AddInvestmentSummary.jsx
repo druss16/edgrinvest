@@ -28,23 +28,33 @@ const AddInvestmentSummary = () => {
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    if (isAdmin && token) {
-      api.get('api/users/users/', {
-        headers: { Authorization: `Token ${token}` },
-        withCredentials: true,
-      })
-        .then((response) => {
+    const fetchUsersAndCSRF = async () => {
+      try {
+        // Get CSRF cookie
+        await api.get('/get-csrf/', { withCredentials: true });
+
+        // Then fetch users
+        if (isAdmin && token) {
+          const response = await api.get('api/users/users/', {
+            headers: { Authorization: `Token ${token}` },
+            withCredentials: true,
+          });
+
           if (Array.isArray(response.data)) {
             setUsers(response.data);
           } else {
             setUsers([{ id: user.id, email: user.email || 'druss16@gmail.com' }]);
           }
-        })
-        .catch(() => {
-          setUsers([{ id: user.id, email: user.email || 'druss16@gmail.com' }]);
-        });
-    }
+        }
+      } catch (err) {
+        console.error('Error during CSRF setup or user fetch:', err);
+        setUsers([{ id: user.id, email: user.email || 'druss16@gmail.com' }]);
+      }
+    };
+
+    fetchUsersAndCSRF();
   }, [isAdmin, token, user.id, user.email]);
+
 
   // CSRF token getter
   function getCookie(name) {

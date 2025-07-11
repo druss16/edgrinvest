@@ -294,14 +294,35 @@ def investment_list(request):
     })
 
 
+# # users/views.py
+# @staff_member_required
+# def add_investment_summary(request):
+#     form = InvestmentSummaryForm(request.POST or None)
+#     if form.is_valid():
+#         form.save()
+#         return redirect('users:investment_dashboard')
+#     return render(request, 'users/add_investment_summary.html', {'form': form})
+
+
 # users/views.py
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from django.views.decorators.csrf import csrf_protect
+from users.forms import InvestmentSummaryForm
+from django.contrib.admin.views.decorators import staff_member_required
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@csrf_protect
 @staff_member_required
-def add_investment_summary(request):
-    form = InvestmentSummaryForm(request.POST or None)
+def add_investment_summary_api(request):
+    form = InvestmentSummaryForm(request.data)
     if form.is_valid():
         form.save()
-        return redirect('users:investment_dashboard')
-    return render(request, 'users/add_investment_summary.html', {'form': form})
+        return Response({'message': 'Investment summary saved successfully.'}, status=status.HTTP_201_CREATED)
+    return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # users/views.py
