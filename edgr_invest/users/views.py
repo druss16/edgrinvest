@@ -433,13 +433,13 @@ from .serializers import (
 
 logger = logging.getLogger(__name__)
 
-@staff_member_required
-def add_investment_summary(request):
-    form = InvestmentSummaryForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        return redirect('users:investment_dashboard')
-    return render(request, 'users/add_investment_summary.html', {'form': form})
+# @staff_member_required
+# def add_investment_summary(request):
+#     form = InvestmentSummaryForm(request.POST or None)
+#     if form.is_valid():
+#         form.save()
+#         return redirect('users:investment_dashboard')
+#     return render(request, 'users/add_investment_summary.html', {'form': form})
 
 class InvestmentSummaryDeuxListView(APIView):
     permission_classes = [IsAuthenticated]
