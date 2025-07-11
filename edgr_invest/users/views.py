@@ -447,22 +447,22 @@ class AddInvestmentSummaryView(APIView):
 
     def post(self, request):
         try:
-            logger.info(f"Adding investment summary by admin: {request.user.username}")
+            print("✅ Authenticated User:", request.user)
+            print("✅ Is Staff:", request.user.is_staff)
 
-            # Inject user_id into data
+            if not request.user or not request.user.is_staff:
+                return Response({"error": "Permission denied"}, status=403)
+
             data = request.data.copy()
             data['user_id'] = request.user.id
 
             serializer = InvestmentSummaryDeuxSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({"message": "Investment summary added successfully"}, status=status.HTTP_201_CREATED)
-            logger.warning(f"Invalid data: {serializer.errors}")
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "Investment summary added successfully"}, status=201)
+            return Response(serializer.errors, status=400)
         except Exception as e:
-            logger.error(f"Error in AddInvestmentSummaryView: {str(e)}", exc_info=True)
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            return Response({"error": str(e)}, status=500)
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
