@@ -71,41 +71,41 @@ class CustomUserSerializer(serializers.ModelSerializer):
             return round(self.get_profit(obj) / initial_investment * 100, 2)
         return 0.0
 
-class InvestmentSerializer(serializers.ModelSerializer):
-    profit_loss = serializers.SerializerMethodField()
-    roi_percentage = serializers.SerializerMethodField()
+# class InvestmentSerializer(serializers.ModelSerializer):
+#     profit_loss = serializers.SerializerMethodField()
+#     roi_percentage = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Investment
-        fields = [
-            'id',
-            'quarter',
-            'amount_invested',
-            'current_value',
-            'profit_loss',
-            'roi_percentage',
-            'start_date',
-        ]
+#     class Meta:
+#         model = Investment
+#         fields = [
+#             'id',
+#             'quarter',
+#             'amount_invested',
+#             'current_value',
+#             'profit_loss',
+#             'roi_percentage',
+#             'start_date',
+#         ]
 
-    def get_profit_loss(self, obj):
-        return float(obj.profit_loss())
+#     def get_profit_loss(self, obj):
+#         return float(obj.profit_loss())
 
-    def get_roi_percentage(self, obj):
-        return float(obj.roi_percentage())
+#     def get_roi_percentage(self, obj):
+#         return float(obj.roi_percentage())
 
-class InvestmentSummarySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = InvestmentSummary
-        fields = [
-            'id',
-            'quarter',
-            'beginning_balance',
-            'dividend_percent',
-            'dividend_amount',
-            'rollover_paid',
-            'dividend_paid',
-            'ending_balance',
-        ]
+# class InvestmentSummarySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = InvestmentSummary
+#         fields = [
+#             'id',
+#             'quarter',
+#             'beginning_balance',
+#             'dividend_percent',
+#             'dividend_amount',
+#             'rollover_paid',
+#             'dividend_paid',
+#             'ending_balance',
+#         ]
 
 class InvestmentSummaryDeuxSerializer(serializers.ModelSerializer):
     dividend_percent = serializers.FloatField()
@@ -115,7 +115,6 @@ class InvestmentSummaryDeuxSerializer(serializers.ModelSerializer):
         model = InvestmentSummaryDeux
         fields = [
             'id',
-            'user',
             'quarter',
             'beginning_balance',
             'dividend_percent',
@@ -127,16 +126,16 @@ class InvestmentSummaryDeuxSerializer(serializers.ModelSerializer):
         ]
 
 
-class InvestmentSummaryForm(serializers.ModelSerializer):
-    class Meta:
-        model = InvestmentSummaryDeux
-        fields = [
-            'user_id',
-            'quarter',
-            'beginning_balance',
-            'dividend_percent',
-            'dividend_amount',
-            'unrealized_gain',
-            'dividend_paid',
-            'ending_balance',
-        ]
+# class InvestmentSummaryForm(serializers.ModelSerializer):
+#     class Meta:
+#         model = InvestmentSummaryDeux
+#         fields = [
+#             'user_id',
+#             'quarter',
+#             'beginning_balance',
+#             'dividend_percent',
+#             'dividend_amount',
+#             'unrealized_gain',
+#             'dividend_paid',
+#             'ending_balance',
+#         ]
