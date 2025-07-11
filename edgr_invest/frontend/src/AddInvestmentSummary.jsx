@@ -31,26 +31,6 @@ const AddInvestmentSummary = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Fetch CSRF token
-  useEffect(() => {
-    console.log('Fetching CSRF token from:', api.defaults.baseURL + '/get-csrf-token/');
-    api.get('/get-csrf-token/', { withCredentials: true })
-      .then((response) => {
-        console.log('CSRF token fetched:', response.data);
-        setCsrfToken(response.data.csrfToken);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch CSRF token:', {
-          message: err.message,
-          config: err.config,
-          response: err.response?.data,
-          status: err.response?.status,
-        });
-        setError(`Failed to initialize CSRF token: ${err.message}. Using fallback.`);
-        // Temporary bypass for production testing
-        setCsrfToken('temp-bypass');
-      });
-  }, []);
 
   // Fetch users for dropdown
   useEffect(() => {
@@ -161,7 +141,6 @@ const AddInvestmentSummary = () => {
       const response = await api.post('/add-investment-summary/', formData, {
         headers: {
           Authorization: `Token ${token}`,
-          'X-CSRFToken': csrfToken || 'temp-bypass',
           'Content-Type': 'application/json',
         },
         withCredentials: true,
