@@ -108,9 +108,11 @@ CORS_ALLOWED_ORIGINS = [
     'https://www.edgrinvest.com',
     'https://edgr-invest.onrender.com',  # If frontend is hosted on Render
     'https://edgrinvest-frontend.onrender.com',
+    'https://api.edgrinvest.com',  # ✅ Add this
+
 ]
 
-CSRF_COOKIE_DOMAIN = ".edgrinvest.com"
+CSRF_COOKIE_DOMAIN = "edgrinvest.com"
 CSRF_COOKIE_SECURE = True  # required for HTTPS
 SESSION_COOKIE_SECURE = True
 

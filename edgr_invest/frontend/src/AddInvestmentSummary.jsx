@@ -62,14 +62,15 @@ const AddInvestmentSummary = () => {
     setError(null);
     setSuccess(null);
 
-    const csrfToken = getCookie('csrftoken');
-
     try {
+      // First, ensure CSRF cookie is set
+      await api.get('/get-csrf/');
+
       const response = await api.post('/add-investment-summary/', formData, {
         headers: {
           Authorization: `Token ${token}`,
           'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
+          // X-CSRFToken will be pulled from the cookie automatically by Axios
         },
         withCredentials: true,
       });
@@ -91,6 +92,7 @@ const AddInvestmentSummary = () => {
       setError(err.response?.data || `Failed to submit form: ${err.message}`);
     }
   };
+
 
   if (!token) {
     return <div className="text-white p-10 text-center">You must be logged in to access this page.</div>;

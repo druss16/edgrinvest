@@ -1002,6 +1002,13 @@ class GetCsrfTokenView(APIView):
             logger.error(f"Error in GetCsrfTokenView: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.http import JsonResponse
+
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({'message': 'CSRF cookie set'})
+
 def redirect_to_react(request):
     logger.info(f"Redirecting to React app from {request.path}")
     return redirect('http://localhost:8080')

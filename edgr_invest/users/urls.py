@@ -6,6 +6,7 @@ app_name = 'users'
 
 urlpatterns = [
     path('', views.redirect_to_react, name='home'),
+    path('get-csrf/', views.get_csrf_token, name="get-csrf"),
     path('dashboard/', views.redirect_to_react, name='investment_dashboard'),
     path('settings/', views.redirect_to_react, name='user_settings'),
     path('password_reset/', views.redirect_to_react, name='password_reset'),

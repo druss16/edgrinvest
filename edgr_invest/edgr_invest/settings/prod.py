@@ -22,6 +22,8 @@ CORS_ALLOWED_ORIGINS = [
     'https://www.edgrinvest.com',
     'https://edgr-invest.onrender.com',
     'https://edgrinvest-frontend.onrender.com',
+    'https://api.edgrinvest.com',  # ✅ Add this
+
 
 
 ]
