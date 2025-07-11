@@ -313,6 +313,7 @@ from django.views.decorators.csrf import csrf_protect
 from users.forms import InvestmentSummaryForm
 from django.contrib.admin.views.decorators import staff_member_required
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @csrf_protect
@@ -325,7 +326,6 @@ def add_investment_summary_api(request):
         form.save()
         return Response({'message': 'Investment summary saved successfully.'}, status=status.HTTP_201_CREATED)
     return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
-
 
 # users/views.py
 from django.http import JsonResponse
@@ -1029,10 +1029,11 @@ class GetCsrfTokenView(APIView):
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+@api_view(['GET'])
+@permission_classes([])
 @ensure_csrf_cookie
 def get_csrf_token(request):
     return JsonResponse({'message': 'CSRF cookie set'})
-
 def redirect_to_react(request):
     logger.info(f"Redirecting to React app from {request.path}")
     return redirect('http://localhost:8080')
