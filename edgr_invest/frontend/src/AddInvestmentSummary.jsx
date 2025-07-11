@@ -13,7 +13,6 @@ const AddInvestmentSummary = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    user: '',
     quarter: '',
     beginning_balance: '',
     dividend_percent: '',

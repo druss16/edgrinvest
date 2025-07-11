@@ -148,28 +148,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from .models import InvestmentSummaryDeux
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import InvestmentSummaryDeux
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import InvestmentSummaryDeux
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import InvestmentSummaryDeux
-
-import json
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import InvestmentSummaryDeux
-
-from decimal import Decimal
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import InvestmentSummaryDeux
-
 @login_required
 def investment_dashboard(request):
     summaries = InvestmentSummaryDeux.objects.filter(user_id=request.user.id).order_by('quarter')
@@ -314,18 +292,18 @@ from users.forms import InvestmentSummaryForm
 from django.contrib.admin.views.decorators import staff_member_required
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-@csrf_protect
-def add_investment_summary_api(request):
-    if not request.user.is_staff:
-        return Response({'detail': 'Only staff members can submit summaries.'}, status=403)
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# @csrf_protect
+# def add_investment_summary_api(request):
+#     if not request.user.is_staff:
+#         return Response({'detail': 'Only staff members can submit summaries.'}, status=403)
 
-    form = InvestmentSummaryForm(request.data)
-    if form.is_valid():
-        form.save()
-        return Response({'message': 'Investment summary saved successfully.'}, status=status.HTTP_201_CREATED)
-    return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+#     form = InvestmentSummaryForm(request.data)
+#     if form.is_valid():
+#         form.save()
+#         return Response({'message': 'Investment summary saved successfully.'}, status=status.HTTP_201_CREATED)
+#     return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 # users/views.py
 from django.http import JsonResponse
@@ -470,7 +448,12 @@ class AddInvestmentSummaryView(APIView):
     def post(self, request):
         try:
             logger.info(f"Adding investment summary by admin: {request.user.username}")
-            serializer = InvestmentSummaryDeuxSerializer(data=request.data)
+
+            # Inject user_id into data
+            data = request.data.copy()
+            data['user_id'] = request.user.id
+
+            serializer = InvestmentSummaryDeuxSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({"message": "Investment summary added successfully"}, status=status.HTTP_201_CREATED)
@@ -479,6 +462,7 @@ class AddInvestmentSummaryView(APIView):
         except Exception as e:
             logger.error(f"Error in AddInvestmentSummaryView: {str(e)}", exc_info=True)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
