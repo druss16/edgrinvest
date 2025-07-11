@@ -102,10 +102,11 @@ CORS_ALLOWED_ORIGINS = [
     'https://edgrinvest-frontend.onrender.com',
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:8080",
-]
+CSRF_COOKIE_DOMAIN = ".edgrinvest.com"
+CSRF_COOKIE_SECURE = True  # required for HTTPS
+SESSION_COOKIE_SECURE = True
+
+
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
