@@ -39,6 +39,9 @@ CSRF_TRUSTED_ORIGINS = [
 
 ]
 
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+
+
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

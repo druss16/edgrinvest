@@ -98,8 +98,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Add Whitenoise middleware
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
 
 ]
+
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',  # Keep for development

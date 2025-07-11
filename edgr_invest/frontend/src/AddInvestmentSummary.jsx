@@ -26,14 +26,15 @@ const AddInvestmentSummary = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-
+  
   useEffect(() => {
     const fetchUsersAndCSRF = async () => {
       try {
-        // Get CSRF cookie
+        // Step 1: Get CSRF token
         await api.get('/get-csrf/', { withCredentials: true });
+        console.log('CSRF cookie set ✅');
 
-        // Then fetch users
+        // Step 2: Fetch users if admin
         if (isAdmin && token) {
           const response = await api.get('api/users/users/', {
             headers: { Authorization: `Token ${token}` },
@@ -47,7 +48,7 @@ const AddInvestmentSummary = () => {
           }
         }
       } catch (err) {
-        console.error('Error during CSRF setup or user fetch:', err);
+        console.error('Error in useEffect:', err);
         setUsers([{ id: user.id, email: user.email || 'druss16@gmail.com' }]);
       }
     };
@@ -55,8 +56,7 @@ const AddInvestmentSummary = () => {
     fetchUsersAndCSRF();
   }, [isAdmin, token, user.id, user.email]);
 
-
-  // CSRF token getter
+    // CSRF token getter
   function getCookie(name) {
     const cookie = document.cookie.split('; ').find(row => row.startsWith(name + '='));
     return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
@@ -79,7 +79,6 @@ const AddInvestmentSummary = () => {
       const response = await api.post('/add-investment-summary/', formData, {
         headers: {
           Authorization: `Token ${token}`,
-          'Content-Type': 'application/json',
           // X-CSRFToken will be pulled from the cookie automatically by Axios
         },
         withCredentials: true,

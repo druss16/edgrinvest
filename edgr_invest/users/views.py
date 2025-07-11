@@ -1023,8 +1023,9 @@ class GetCsrfTokenView(APIView):
             logger.error(f"Error in GetCsrfTokenView: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-from django.views.decorators.csrf import ensure_csrf_cookie
+# users/views.py
 from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 @ensure_csrf_cookie
 def get_csrf_token(request):
