@@ -39,6 +39,9 @@ CSRF_TRUSTED_ORIGINS = [
 
 ]
 
+CSRF_COOKIE_DOMAIN = ".edgrinvest.com"
+
+
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 
 
