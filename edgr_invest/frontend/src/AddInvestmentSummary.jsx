@@ -27,7 +27,6 @@ const AddInvestmentSummary = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Fetch users for dropdown
   useEffect(() => {
     if (isAdmin && token) {
       api.get('api/users/users/', {
@@ -47,7 +46,7 @@ const AddInvestmentSummary = () => {
     }
   }, [isAdmin, token, user.id, user.email]);
 
-  // Helper to read a cookie value
+  // CSRF token getter
   function getCookie(name) {
     const cookie = document.cookie.split('; ').find(row => row.startsWith(name + '='));
     return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
@@ -72,6 +71,7 @@ const AddInvestmentSummary = () => {
           'Content-Type': 'application/json',
           'X-CSRFToken': csrfToken,
         },
+        withCredentials: true,
       });
 
       setSuccess(response.data.message || 'Investment summary submitted successfully.');
