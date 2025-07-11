@@ -39,12 +39,20 @@ ALLOWED_HOSTS = [
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'X-CSRFToken',
+    'Referer',  # ✅ Add this
+]
+
 CSRF_TRUSTED_ORIGINS = [
     'http://0.0.0.0:8080',
     'http://localhost:8080',
     'https://edgr-invest.onrender.com',
     'https://edgrinvest.com',
     'https://www.edgrinvest.com',
+    'https://api.edgrinvest.com',  # ✅ Add this
+
+
 ]
 
 # Application definition

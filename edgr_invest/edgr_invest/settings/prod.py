@@ -14,6 +14,7 @@ ALLOWED_HOSTS = ['edgr-invest.onrender.com', 'edgrinvest.onrender.com',  'api.ed
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'X-CSRFToken',
+    'Referer',  # ✅ Add this
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -21,6 +22,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://www.edgrinvest.com',
     'https://edgr-invest.onrender.com',
     'https://edgrinvest-frontend.onrender.com',
+
 
 ]
 CORS_ALLOW_CREDENTIALS = True
@@ -30,6 +32,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://edgrinvest.com',
     'https://www.edgrinvest.com',
     'https://edgrinvest-frontend.onrender.com',
+    'https://api.edgrinvest.com',  # ✅ Add this
+
 
 ]
 
