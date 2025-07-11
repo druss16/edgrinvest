@@ -116,7 +116,7 @@ CORS_ALLOWED_ORIGINS = [
 
 ]
 
-CSRF_COOKIE_DOMAIN = "edgrinvest.com"
+CSRF_COOKIE_DOMAIN = ".edgrinvest.com"
 CSRF_COOKIE_SECURE = True  # required for HTTPS
 SESSION_COOKIE_SECURE = True
 
