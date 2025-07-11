@@ -447,22 +447,22 @@ class AddInvestmentSummaryView(APIView):
 
     def post(self, request):
         try:
-            print("✅ Authenticated User:", request.user)
-            print("✅ Is Staff:", request.user.is_staff)
+            logger.info(f"Adding investment summary by admin: {request.user.username}")
 
-            if not request.user or not request.user.is_staff:
-                return Response({"error": "Permission denied"}, status=403)
+            # ✅ FIXED: include request context here
+            serializer = InvestmentSummaryDeuxSerializer(data=request.data, context={'request': request})
 
-            data = request.data.copy()
-            data['user_id'] = request.user.id
-
-            serializer = InvestmentSummaryDeuxSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({"message": "Investment summary added successfully"}, status=201)
-            return Response(serializer.errors, status=400)
+                return Response({"message": "Investment summary added successfully"}, status=status.HTTP_201_CREATED)
+
+            logger.warning(f"Invalid data: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            logger.error(f"Error in AddInvestmentSummaryView: {str(e)}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -938,21 +938,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class AddInvestmentSummaryView(APIView):
-    permission_classes = [IsAdminUser]
-    @method_decorator(csrf_exempt)
-    def post(self, request):
-        try:
-            logger.info(f"Adding investment summary by user: {request.user.email}")
-            serializer = InvestmentSummaryDeuxSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({"message": "Investment summary added successfully"}, status=status.HTTP_201_CREATED)
-            logger.warning(f"Invalid data: {serializer.errors}")
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            logger.error(f"Error in AddInvestmentSummaryView: {str(e)}", exc_info=True)
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class EditInvestmentSummaryView(APIView):
     permission_classes = [IsAdminUser]

@@ -109,22 +109,29 @@ class InvestmentSummarySerializer(serializers.ModelSerializer):
 
 class InvestmentSummaryDeuxSerializer(serializers.ModelSerializer):
     dividend_percent = serializers.FloatField()
-    rollover_paid = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
 
     class Meta:
         model = InvestmentSummaryDeux
         fields = [
             'id',
+            'user_id',
             'quarter',
             'beginning_balance',
             'dividend_percent',
             'dividend_amount',
-            'rollover_paid',      # ✅ read-only so not required from form
-            'dividend_paid',
             'unrealized_gain',
+            'dividend_paid',
             'ending_balance',
         ]
+        read_only_fields = ['user_id']
 
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request is None or not hasattr(request, 'user'):
+            raise serializers.ValidationError("Request context with authenticated user is required.")
+
+        validated_data['user_id'] = request.user.id
+        return super().create(validated_data)
 
 class InvestmentSummaryForm(serializers.ModelSerializer):
     class Meta:
