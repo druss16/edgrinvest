@@ -108,20 +108,24 @@ class InvestmentSummarySerializer(serializers.ModelSerializer):
         ]
 
 class InvestmentSummaryDeuxSerializer(serializers.ModelSerializer):
-    dividend_percent = serializers.FloatField()  # Ensure float output
+    dividend_percent = serializers.FloatField()
+    rollover_paid = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
 
     class Meta:
         model = InvestmentSummaryDeux
         fields = [
             'id',
+            'user',
             'quarter',
             'beginning_balance',
             'dividend_percent',
             'dividend_amount',
-            'unrealized_gain',
+            'rollover_paid',      # ✅ read-only so not required from form
             'dividend_paid',
+            'unrealized_gain',
             'ending_balance',
         ]
+
 
 class InvestmentSummaryForm(serializers.ModelSerializer):
     class Meta:
