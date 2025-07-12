@@ -1019,6 +1019,30 @@ class GetCsrfTokenView(APIView):
             logger.error(f"Error in GetCsrfTokenView: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+# users/views.py
+from rest_framework.permissions import IsAdminUser
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import get_user_model
+
+class ImpersonateUserView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        User = get_user_model()
+        try:
+            target_user = User.objects.get(id=user_id)
+            token, created = Token.objects.get_or_create(user=target_user)
+            return Response({
+                "token": token.key,
+                "impersonated_user_id": target_user.id,
+                "email": target_user.email,
+            })
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
+
+
 # users/views.py
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie

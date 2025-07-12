@@ -123,15 +123,23 @@ class InvestmentSummaryDeuxSerializer(serializers.ModelSerializer):
             'dividend_paid',
             'ending_balance',
         ]
-        read_only_fields = ['user_id']
 
+    # users/serializers.py
     def create(self, validated_data):
         request = self.context.get('request')
         if request is None or not hasattr(request, 'user'):
             raise serializers.ValidationError("Request context with authenticated user is required.")
 
-        validated_data['user_id'] = request.user.id
+        # If admin, allow passed user_id (from form); else override with request user
+        if request.user.is_staff and 'user_id' in validated_data:
+            # Keep user_id as-is from validated_data
+            pass
+        else:
+            # Force to authenticated user
+            validated_data['user_id'] = request.user.id
+
         return super().create(validated_data)
+
 
 class InvestmentSummaryForm(serializers.ModelSerializer):
     class Meta:

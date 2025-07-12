@@ -13,11 +13,12 @@ const AddInvestmentSummary = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+    user_id: '',
     quarter: '',
     beginning_balance: '',
-    dividend_percent: '',
+    dividend_percent: 3.33,
     dividend_amount: '',
-    dividend_paid: '',
+    dividend_paid: '0.00',
     unrealized_gain: '',
     ending_balance: '',
   });
@@ -25,45 +26,75 @@ const AddInvestmentSummary = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  
-  useEffect(() => {
-    const fetchUsersAndCSRF = async () => {
-      try {
-        // Step 1: Get CSRF token
-        await api.get('/api/users/get-csrf-token/', { withCredentials: true });
-        console.log('CSRF cookie set ✅');
 
-        // Step 2: Fetch users if admin
+  // Get next month from current string
+  const getNextMonth = (currentQuarter) => {
+    try {
+      const [monthName, year] = currentQuarter.split(' ');
+      const date = new Date(`${monthName} 1, ${year}`);
+      date.setMonth(date.getMonth() + 1);
+      return date.toLocaleString('default', { month: 'long', year: 'numeric' });
+    } catch {
+      return '';
+    }
+  };
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        await api.get('/api/users/get-csrf-token/', { withCredentials: true });
         if (isAdmin && token) {
-          const response = await api.get('api/users/users/', {
+          const res = await api.get('api/users/users/', {
             headers: { Authorization: `Token ${token}` },
             withCredentials: true,
           });
-
-          if (Array.isArray(response.data)) {
-            setUsers(response.data);
-          } else {
-            setUsers([{ id: user.id, email: user.email || 'druss16@gmail.com' }]);
-          }
+          setUsers(res.data || []);
         }
       } catch (err) {
-        console.error('Error in useEffect:', err);
-        setUsers([{ id: user.id, email: user.email || 'druss16@gmail.com' }]);
+        console.error('Error loading users:', err);
+        setUsers([]);
       }
     };
 
-    fetchUsersAndCSRF();
-  }, [isAdmin, token, user.id, user.email]);
+    fetchInitialData();
+  }, [isAdmin, token]);
 
-    // CSRF token getter
-  function getCookie(name) {
-    const cookie = document.cookie.split('; ').find(row => row.startsWith(name + '='));
-    return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
-  }
+  const handleUserSelect = async (e) => {
+    const selectedUserId = e.target.value;
+    setFormData(prev => ({ ...prev, user_id: selectedUserId }));
+
+    try {
+      const res = await api.get(`/api/users/latest-summary/${selectedUserId}/`, {
+        headers: { Authorization: `Token ${token}` },
+      });
+
+      const latest = res.data;
+      const principal = parseFloat(latest.beginning_balance || 0);
+      const priorUnrealized = parseFloat(latest.unrealized_gain || 0);
+      const nextQuarter = getNextMonth(latest.quarter);
+      const dividend_percent = 3.33;
+      const dividend_amount = principal * (dividend_percent / 100);
+      const unrealized_gain = priorUnrealized + dividend_amount;
+      const ending_balance = principal + unrealized_gain;
+
+      setFormData({
+        user_id: selectedUserId,
+        quarter: nextQuarter,
+        beginning_balance: principal.toFixed(2),
+        dividend_percent,
+        dividend_amount: dividend_amount.toFixed(2),
+        dividend_paid: '0.00',
+        unrealized_gain: unrealized_gain.toFixed(2),
+        ending_balance: ending_balance.toFixed(2),
+      });
+    } catch (err) {
+      console.error('Error fetching user summary:', err);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -72,50 +103,28 @@ const AddInvestmentSummary = () => {
     setSuccess(null);
 
     try {
-      // First, ensure CSRF cookie is set
       await api.get('/get-csrf/');
-
-      const response = await api.post('/api/users/add-investment-summary/', formData, {
-        headers: {
-          Authorization: `Token ${token}`,
-          // X-CSRFToken will be pulled from the cookie automatically by Axios
-        },
+      const res = await api.post('/api/users/add-investment-summary/', formData, {
+        headers: { Authorization: `Token ${token}` },
         withCredentials: true,
       });
 
-      setSuccess(response.data.message || 'Investment summary submitted successfully.');
-      setFormData({
-        user: '',
-        quarter: '',
-        beginning_balance: '',
-        dividend_percent: '',
-        dividend_amount: '',
-        dividend_paid: '',
-        unrealized_gain: '',
-        ending_balance: '',
-      });
-
+      setSuccess(res.data.message || 'Investment summary submitted successfully.');
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
-      setError(err.response?.data || `Failed to submit form: ${err.message}`);
+      setError(err.response?.data || `Submission failed: ${err.message}`);
     }
   };
 
-
-  if (!token) {
-    return <div className="text-white p-10 text-center">You must be logged in to access this page.</div>;
-  }
-
-  if (!isAdmin) {
-    return <div className="text-white p-10 text-center">Only administrators can add investment summaries.</div>;
-  }
+  if (!token) return <div className="text-white p-10 text-center">You must be logged in.</div>;
+  if (!isAdmin) return <div className="text-white p-10 text-center">Admin access only.</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center relative">
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-800 to-green-800"></div>
       <div className="absolute inset-0 opacity-10">
         <img
-          src="https://images.unsplash.com/photo-1590283603385-a6e2a5b9db6f?w=1920&h=1080&fit=crop"
+          src="https://images.unsplash.com/photo-1590283603385-a6e2a5b9db6f"
           alt="Background"
           className="w-full h-full object-cover"
         />
@@ -129,23 +138,20 @@ const AddInvestmentSummary = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <Label htmlFor="user">User (Email)</Label>
+            <Label>User (Email)</Label>
             <select
-              id="user"
-              name="user"
-              value={formData.user}
-              onChange={handleChange}
+              name="user_id"
+              value={formData.user_id}
+              onChange={handleUserSelect}
               required
               className="mt-1 block w-full bg-slate-800 text-white border-slate-600 py-2 px-3 rounded"
             >
               <option value="">Select a user</option>
-              {Array.isArray(users) && users.length > 0 ? (
-                users.map((u) => (
-                  <option key={u.id} value={u.id}>{u.email || u.username}</option>
-                ))
-              ) : (
-                <option disabled>No users available</option>
-              )}
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.email || u.username}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -159,9 +165,8 @@ const AddInvestmentSummary = () => {
             ['ending_balance', 'Current Balance']
           ].map(([name, label]) => (
             <div key={name}>
-              <Label htmlFor={name}>{label}</Label>
+              <Label>{label}</Label>
               <Input
-                id={name}
                 name={name}
                 type={name === 'quarter' ? 'text' : 'number'}
                 step="0.01"
