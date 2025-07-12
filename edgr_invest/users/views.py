@@ -812,25 +812,45 @@ class InvestmentSummaryDeuxListView(APIView):
             logger.error(f"Error in InvestmentSummaryDeuxListView: {str(e)}", exc_info=True)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from django.contrib.auth import authenticate, get_user_model
+from rest_framework.authtoken.models import Token
+import logging
+
+logger = logging.getLogger(__name__)
+User = get_user_model()
+
 class CustomAuthToken(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request):
         try:
-            username = request.data.get('username')
+            email = request.data.get('username')  # frontend sends email here
             password = request.data.get('password')
-            user = authenticate(request=request, username=username, password=password)
+
+            try:
+                user_obj = User.objects.get(email=email)
+                user = authenticate(request=request, username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                user = None
+
             if user:
-                login(request, user)
                 token, created = Token.objects.get_or_create(user=user)
-                logger.info(f"User {username} logged in successfully")
+                logger.info(f"User {email} logged in successfully")
                 return Response({
                     'token': token.key,
                     'user_id': user.id,
                     'username': user.username,
+                    'email': user.email,
                     'is_staff': user.is_staff
                 }, status=status.HTTP_200_OK)
-            logger.warning(f"Invalid login attempt for username: {username}")
+
+            logger.warning(f"Invalid login attempt for {email}")
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
         except Exception as e:
             logger.error(f"Error in CustomAuthToken: {str(e)}", exc_info=True)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
