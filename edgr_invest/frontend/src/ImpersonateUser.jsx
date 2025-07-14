@@ -30,30 +30,43 @@ const ImpersonateUser = () => {
     }
   }, []);
 
-  const handleImpersonate = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await api.post('/api/users/impersonate/', { user_id: selectedUserId }, {
-        headers: { Authorization: `Token ${token}` },
-      });
-
-      // Save current token before overwriting
-      localStorage.setItem('original_token', token);
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('impersonating', 'true');
-      localStorage.setItem('user', JSON.stringify({
-        id: res.data.user_id,
-        username: res.data.username,
-        is_staff: res.data.is_staff,
-        impersonating: true,
-      }));
-
-      navigate('/dashboard');
-    } catch (err) {
-      console.error('Impersonation failed:', err);
-    }
+  // In ImpersonateUser.jsx
+  const getCookie = (name) => {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
   };
 
+  const handleImpersonate = async () => {
+      try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+              console.error('No token found');
+              navigate('/login');
+              return;
+          }
+          const res = await api.post('/api/users/impersonate/', { user_id: selectedUserId }, {
+              headers: {
+                  Authorization: `Token ${token}`,
+                  'X-CSRFToken': getCookie('csrftoken'),
+              },
+              withCredentials: true,
+          });
+          // ... rest of the code ...
+      } catch (err) {
+          console.error('Impersonation failed:', err.response?.data || err.message);
+      }
+  };
+  
   const handleStopImpersonating = async () => {
     const originalToken = localStorage.getItem('original_token');
     if (originalToken) {

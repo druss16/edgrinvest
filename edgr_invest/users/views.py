@@ -1021,14 +1021,14 @@ class GetCsrfTokenView(APIView):
 
 
 # users/views.py
-from rest_framework.permissions import IsAdminUser
-from rest_framework.authtoken.models import Token
-from django.contrib.auth import get_user_model
+import logging
+logger = logging.getLogger(__name__)
 
 class ImpersonateUserView(APIView):
     permission_classes = [IsAdminUser]
 
     def post(self, request):
+        logger.debug(f"User: {request.user}, Is admin: {request.user.is_staff or request.user.is_superuser}")
         user_id = request.data.get('user_id')
         User = get_user_model()
         try:
@@ -1040,8 +1040,8 @@ class ImpersonateUserView(APIView):
                 "email": target_user.email,
             })
         except User.DoesNotExist:
+            logger.error(f"Target user {user_id} not found")
             return Response({"error": "User not found"}, status=404)
-
 
 # users/views.py
 from django.http import JsonResponse
