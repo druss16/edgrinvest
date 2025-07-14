@@ -31,14 +31,14 @@ import re
 @admin.register(Investment)
 class InvestmentAdmin(admin.ModelAdmin):
     form = InvestmentAdminForm
-    list_display = ('user_display', 'amount_invested', 'current_value', 'profit_loss', 'roi_percentage', 'quarter', 'start_date')
-    list_filter = ('quarter', 'start_date')
-    search_fields = ('user_id', 'quarter')
-    list_display_links = ('user_display', 'quarter')
+    list_display = ('user_display', 'amount_invested', 'start_date')
+    list_filter = ('start_date',)
+    search_fields = ('user_id',)
+    list_display_links = ('user_display',)
 
     fieldsets = (
         (None, {
-            'fields': ('user_id', 'amount_invested', 'current_value', 'quarter', 'start_date')
+            'fields': ('user_id', 'amount_invested', 'start_date')
         }),
     )
 
@@ -48,14 +48,6 @@ class InvestmentAdmin(admin.ModelAdmin):
         except Exception:
             return f"User ID {obj.user_id}"
     user_display.short_description = 'User'
-
-    def profit_loss(self, obj):
-        return f"{obj.profit_loss():.2f}"
-    profit_loss.short_description = 'Profit/Loss'
-
-    def roi_percentage(self, obj):
-        return f"{obj.roi_percentage():.2f}%"
-    roi_percentage.short_description = 'ROI (%)'
 
     def get_readonly_fields(self, request, obj=None):
         return ['user_id'] if obj else []

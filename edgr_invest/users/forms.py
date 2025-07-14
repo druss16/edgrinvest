@@ -17,6 +17,13 @@ from .models import UserProfile
 CustomUser = get_user_model()
 
 
+# users/forms.py
+from django import forms
+from django.contrib.auth import get_user_model
+from .models import UserProfile, Investment
+
+CustomUser = get_user_model()
+
 class InvestmentAdminForm(forms.ModelForm):
     user_id = forms.ModelChoiceField(
         queryset=CustomUser.objects.all(),
@@ -28,7 +35,7 @@ class InvestmentAdminForm(forms.ModelForm):
 
     class Meta:
         model = Investment
-        fields = ['user_id', 'amount_invested', 'current_value', 'quarter', 'start_date']
+        fields = ['user_id', 'amount_invested', 'start_date']
 
     def clean_user_id(self):
         return self.cleaned_data['user_id'].id
@@ -36,19 +43,10 @@ class InvestmentAdminForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         amount_invested = cleaned_data.get('amount_invested')
-        current_value = cleaned_data.get('current_value')
-        quarter = cleaned_data.get('quarter')
-        start_date = cleaned_data.get('start_date')
 
-        # Validate quarter format (e.g., "Q1-25")
-        if quarter and not re.match(r'^Q[1-4]-\d{2}$', quarter):
-            raise forms.ValidationError({'quarter': 'Quarter must be in format Q1-25, Q2-25, etc.'})
-
-        # Ensure amount_invested and current_value are non-negative
+        # Ensure amount_invested is non-negative
         if amount_invested is not None and amount_invested < 0:
             raise forms.ValidationError({'amount_invested': 'Amount invested cannot be negative.'})
-        if current_value is not None and current_value < 0:
-            raise forms.ValidationError({'current_value': 'Current value cannot be negative.'})
 
         return cleaned_data
 
