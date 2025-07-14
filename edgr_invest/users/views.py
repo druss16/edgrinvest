@@ -1021,19 +1021,28 @@ class GetCsrfTokenView(APIView):
 
 
 # users/views.py
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import get_user_model
+from rest_framework import status
 import logging
+
 logger = logging.getLogger(__name__)
 
 class ImpersonateUserView(APIView):
     permission_classes = [IsAdminUser]
 
     def post(self, request):
-        logger.debug(f"User: {request.user}, Is admin: {request.user.is_staff or request.user.is_superuser}")
         user_id = request.data.get('user_id')
+        if not user_id or not str(user_id).isdigit():
+            logger.error(f"Invalid user_id: {user_id}")
+            return Response({"error": "Valid user_id required"}, status=status.HTTP_400_BAD_REQUEST)
         User = get_user_model()
         try:
             target_user = User.objects.get(id=user_id)
             token, created = Token.objects.get_or_create(user=target_user)
+            logger.debug(f"Impersonating user {target_user.username} (ID: {target_user.id})")
             return Response({
                 "token": token.key,
                 "impersonated_user_id": target_user.id,
@@ -1041,7 +1050,10 @@ class ImpersonateUserView(APIView):
             })
         except User.DoesNotExist:
             logger.error(f"Target user {user_id} not found")
-            return Response({"error": "User not found"}, status=404)
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # users/views.py
 from django.http import JsonResponse

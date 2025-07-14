@@ -1,4 +1,3 @@
-// src/ImpersonateUser.jsx
 import React, { useState, useEffect } from 'react';
 import api from './api';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +9,22 @@ const ImpersonateUser = () => {
   const [isImpersonating, setIsImpersonating] = useState(false);
   const navigate = useNavigate();
 
+  // Utility to get CSRF token from cookies
+  const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  };
+
   useEffect(() => {
     const impersonating = localStorage.getItem('impersonating') === 'true';
     setIsImpersonating(impersonating);
@@ -18,81 +33,109 @@ const ImpersonateUser = () => {
       const fetchUsers = async () => {
         try {
           const token = localStorage.getItem('token');
+          if (!token) {
+            console.error('No token found for fetching users');
+            navigate('/login');
+            return;
+          }
           const res = await api.get('/api/users/users/', {
-            headers: { Authorization: `Token ${token}` },
+            headers: {
+              Authorization: `Token ${token}`,
+              'X-CSRFToken': getCookie('csrftoken'),
+            },
+            withCredentials: true,
           });
           setUsers(res.data);
         } catch (err) {
-          console.error('Error fetching users:', err);
+          console.error('Error fetching users:', err.response?.data || err.message);
+          alert('Failed to fetch users: ' + (err.response?.data?.error || 'Server error'));
+          if (err.response?.status === 401 || err.response?.status === 403) {
+            navigate('/login');
+          }
         }
       };
       fetchUsers();
     }
-  }, []);
-
-  // In ImpersonateUser.jsx
-  const getCookie = (name) => {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                  break;
-              }
-          }
-      }
-      return cookieValue;
-  };
+  }, [navigate]);
 
   const handleImpersonate = async () => {
-      try {
-          const token = localStorage.getItem('token');
-          if (!token) {
-              console.error('No token found');
-              navigate('/login');
-              return;
-          }
-          const res = await api.post('/api/users/impersonate/', { user_id: selectedUserId }, {
-              headers: {
-                  Authorization: `Token ${token}`,
-                  'X-CSRFToken': getCookie('csrftoken'),
-              },
-              withCredentials: true,
-          });
-          // ... rest of the code ...
-      } catch (err) {
-          console.error('Impersonation failed:', err.response?.data || err.message);
+    if (!selectedUserId) {
+      console.error('No user selected');
+      alert('Please select a user to impersonate');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        navigate('/login');
+        return;
       }
-  };
-  
-  const handleStopImpersonating = async () => {
-    const originalToken = localStorage.getItem('original_token');
-    if (originalToken) {
-      try {
-        // Restore original token
-        localStorage.setItem('token', originalToken);
-        localStorage.removeItem('original_token');
-        localStorage.removeItem('impersonating');
 
-        // Fetch real user with is_staff info
-        const res = await api.get('/api/users/profile/', {
-          headers: { Authorization: `Token ${originalToken}` },
-        });
+      const res = await api.post('/api/users/impersonate/', { user_id: selectedUserId }, {
+        headers: {
+          Authorization: `Token ${token}`,
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        withCredentials: true,
+      });
 
-        const user = {
-          ...res.data,
-          is_staff: res.data.is_staff || false, // Ensure flag is preserved
-        };
-        localStorage.setItem('user', JSON.stringify(user));
+      // Save current token before overwriting
+      localStorage.setItem('original_token', token);
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('impersonating', 'true');
+      localStorage.setItem('user', JSON.stringify({
+        id: res.data.impersonated_user_id,
+        username: res.data.email || 'unknown',
+        is_staff: res.data.is_staff || false,
+        impersonating: true,
+      }));
 
-        navigate(`/dashboard?refresh=${Date.now()}`);;
-      } catch (err) {
-        console.error('Failed to restore admin session:', err);
-        localStorage.removeItem('user');
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Impersonation failed:', err.response?.data || err.message);
+      alert('Impersonation failed: ' + (err.response?.data?.error || 'Server error'));
+      if (err.response?.status === 401 || err.response?.status === 403) {
         navigate('/login');
       }
+    }
+  };
+
+  const handleStopImpersonating = async () => {
+    const originalToken = localStorage.getItem('original_token');
+    if (!originalToken) {
+      console.error('No original token found');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      // Restore original token
+      localStorage.setItem('token', originalToken);
+      localStorage.removeItem('original_token');
+      localStorage.removeItem('impersonating');
+
+      // Fetch real user with is_staff info
+      const res = await api.get('/api/users/profile/', {
+        headers: {
+          Authorization: `Token ${originalToken}`,
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        withCredentials: true,
+      });
+
+      const user = {
+        ...res.data,
+        is_staff: res.data.is_staff || false,
+      };
+      localStorage.setItem('user', JSON.stringify(user));
+
+      navigate(`/dashboard?refresh=${Date.now()}`);
+    } catch (err) {
+      console.error('Failed to restore admin session:', err.response?.data || err.message);
+      localStorage.removeItem('user');
+      navigate('/login');
     }
   };
 
@@ -127,6 +170,7 @@ const ImpersonateUser = () => {
           <Button
             onClick={handleImpersonate}
             className="bg-blue-600 text-white px-4 py-2 rounded"
+            disabled={!selectedUserId} // Disable button if no user is selected
           >
             Impersonate
           </Button>
