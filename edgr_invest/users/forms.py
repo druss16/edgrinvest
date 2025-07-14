@@ -17,22 +17,40 @@ from .models import UserProfile
 CustomUser = get_user_model()
 
 
-class UserProfileAdminForm(forms.ModelForm):
+class InvestmentAdminForm(forms.ModelForm):
     user_id = forms.ModelChoiceField(
         queryset=CustomUser.objects.all(),
         to_field_name='id',
         label='User',
         help_text='Select a user by username.',
-        empty_label=None  # No empty option to enforce selection
+        empty_label=None
     )
 
     class Meta:
-        model = UserProfile
-        fields = ['user_id', 'balance', 'initial_investment']
+        model = Investment
+        fields = ['user_id', 'amount_invested', 'current_value', 'quarter', 'start_date']
 
     def clean_user_id(self):
-        # Return the ID of the selected user
         return self.cleaned_data['user_id'].id
+
+    def clean(self):
+        cleaned_data = super().clean()
+        amount_invested = cleaned_data.get('amount_invested')
+        current_value = cleaned_data.get('current_value')
+        quarter = cleaned_data.get('quarter')
+        start_date = cleaned_data.get('start_date')
+
+        # Validate quarter format (e.g., "Q1-25")
+        if quarter and not re.match(r'^Q[1-4]-\d{2}$', quarter):
+            raise forms.ValidationError({'quarter': 'Quarter must be in format Q1-25, Q2-25, etc.'})
+
+        # Ensure amount_invested and current_value are non-negative
+        if amount_invested is not None and amount_invested < 0:
+            raise forms.ValidationError({'amount_invested': 'Amount invested cannot be negative.'})
+        if current_value is not None and current_value < 0:
+            raise forms.ValidationError({'current_value': 'Current value cannot be negative.'})
+
+        return cleaned_data
 
 class UserSettingsForm(forms.ModelForm):
     password = forms.CharField(label='New Password', widget=forms.PasswordInput(), required=False)

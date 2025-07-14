@@ -22,20 +22,23 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-from django.contrib import admin
-from .models import UserProfile
-from .forms import UserProfileAdminForm
 
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    form = UserProfileAdminForm
-    list_display = ('user_display', 'balance', 'initial_investment')
-    list_filter = ('balance',)
-    search_fields = ('user_id',)
+from django.contrib import admin
+from .models import UserProfile, Investment
+from .forms import InvestmentAdminForm
+import re
+
+@admin.register(Investment)
+class InvestmentAdmin(admin.ModelAdmin):
+    form = InvestmentAdminForm
+    list_display = ('user_display', 'amount_invested', 'current_value', 'profit_loss', 'roi_percentage', 'quarter', 'start_date')
+    list_filter = ('quarter', 'start_date')
+    search_fields = ('user_id', 'quarter')
+    list_display_links = ('user_display', 'quarter')
 
     fieldsets = (
         (None, {
-            'fields': ('user_id', 'balance', 'initial_investment')
+            'fields': ('user_id', 'amount_invested', 'current_value', 'quarter', 'start_date')
         }),
     )
 
@@ -45,29 +48,14 @@ class UserProfileAdmin(admin.ModelAdmin):
         except Exception:
             return f"User ID {obj.user_id}"
     user_display.short_description = 'User'
+
+    def profit_loss(self, obj):
+        return f"{obj.profit_loss():.2f}"
+    profit_loss.short_description = 'Profit/Loss'
+
+    def roi_percentage(self, obj):
+        return f"{obj.roi_percentage():.2f}%"
+    roi_percentage.short_description = 'ROI (%)'
 
     def get_readonly_fields(self, request, obj=None):
-        # Make user_id read-only only when editing (obj exists)
         return ['user_id'] if obj else []
-
-        
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    form = UserProfileAdminForm
-    list_display = ('user_display', 'balance', 'initial_investment')
-    list_filter = ('balance',)
-    search_fields = ('user_id',)
-    readonly_fields = ('user_id',)  # Keep user_id read-only for edits
-
-    fieldsets = (
-        (None, {
-            'fields': ('user_id', 'balance', 'initial_investment')
-        }),
-    )
-
-    def user_display(self, obj):
-        try:
-            return obj.get_user().username
-        except Exception:
-            return f"User ID {obj.user_id}"
-    user_display.short_description = 'User'
