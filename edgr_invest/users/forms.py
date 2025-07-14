@@ -16,12 +16,14 @@ from .models import UserProfile
 
 CustomUser = get_user_model()
 
+
 class UserProfileAdminForm(forms.ModelForm):
-    # Replace user_id with a ChoiceField for usernames
-    user_id = forms.ChoiceField(
-        choices=lambda: [(user.id, user.username) for user in CustomUser.objects.all()],
-        label="User",
-        help_text="Select a user by username."
+    user_id = forms.ModelChoiceField(
+        queryset=CustomUser.objects.all(),
+        to_field_name='id',
+        label='User',
+        help_text='Select a user by username.',
+        empty_label=None  # No empty option to enforce selection
     )
 
     class Meta:
@@ -29,9 +31,8 @@ class UserProfileAdminForm(forms.ModelForm):
         fields = ['user_id', 'balance', 'initial_investment']
 
     def clean_user_id(self):
-        # Convert the selected user_id (string from form) to integer
-        return int(self.cleaned_data['user_id'])
-
+        # Return the ID of the selected user
+        return self.cleaned_data['user_id'].id
 
 class UserSettingsForm(forms.ModelForm):
     password = forms.CharField(label='New Password', widget=forms.PasswordInput(), required=False)
