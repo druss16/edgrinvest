@@ -102,42 +102,20 @@ const ImpersonateUser = () => {
     }
   };
 
-  const handleStopImpersonating = async () => {
-    const originalToken = localStorage.getItem('original_token');
-    if (!originalToken) {
-      console.error('No original token found');
-      navigate('/login');
-      return;
-    }
-
+  const handleStopImpersonation = async () => {
     try {
-      // Restore original token
-      localStorage.setItem('token', originalToken);
-      localStorage.removeItem('original_token');
-      localStorage.removeItem('impersonating');
-
-      // Fetch real user with is_staff info
-      const res = await api.get('/api/users/profile/', {
-        headers: {
-          Authorization: `Token ${originalToken}`,
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
-        withCredentials: true,
+      const token = localStorage.getItem('token');
+      const response = await api.post('/api/users/stop-impersonation/', {}, {
+        headers: { Authorization: `Token ${token}` },
       });
-
-      const user = {
-        ...res.data,
-        is_staff: res.data.is_staff || false,
-      };
-      localStorage.setItem('user', JSON.stringify(user));
-
-      navigate(`/dashboard?refresh=${Date.now()}`);
-    } catch (err) {
-      console.error('Failed to restore admin session:', err.response?.data || err.message);
-      localStorage.removeItem('user');
-      navigate('/login');
+      // Update localStorage with the original user's data
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      navigate('/dashboard', { replace: true });
+    } catch (error) {
+      console.error('Failed to stop impersonation:', error);
+      setError('Failed to stop impersonation.');
     }
-  };
+};
 
   return (
     <div className="p-6">

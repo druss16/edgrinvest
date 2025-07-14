@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './dashboard.css';
 
-// Register Chart.js components
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip);
 
 const Dashboard = () => {
@@ -45,7 +44,7 @@ const Dashboard = () => {
           }),
         ]);
 
-        setProfile({
+        const userData = {
           username: profileRes.data.username,
           email: profileRes.data.email,
           first_name: profileRes.data.first_name,
@@ -56,10 +55,14 @@ const Dashboard = () => {
           dividend_paid: profileRes.data.dividend_paid,
           profit: profileRes.data.profit,
           roi_percentage: profileRes.data.roi_percentage,
-        });
+          is_staff: profileRes.data.is_staff, // Include is_staff
+        };
+
+        setProfile(userData);
+        localStorage.setItem('user', JSON.stringify(userData)); // Sync localStorage
+
         setSummaries(summariesRes.data);
 
-        // Process account value data for Total Account Value chart
         const accountLabels = ['Initial', ...summariesRes.data.map(s => s.quarter)];
         const accountValues = [
           profileRes.data.initial_investment_amount || 0,
@@ -67,14 +70,13 @@ const Dashboard = () => {
             index === summariesRes.data.length - 1
               ? (profileRes.data.initial_investment_amount || 0) + (profileRes.data.profit || 0)
               : s.ending_balance
-          )
+          ),
         ];
         setAccountValueData({
           labels: accountLabels,
           data: accountValues,
         });
 
-        // Process ROI data
         setRoiData({
           labels: roiGrowthRes.data.labels,
           data: roiGrowthRes.data.data,
@@ -113,7 +115,6 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.log('No token found, redirecting to login');
         setError('No session found. Please log in again.');
         localStorage.removeItem('token');
         navigate('/login', { replace: true });
@@ -126,11 +127,13 @@ const Dashboard = () => {
         },
       });
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       navigate('/', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error.response?.data || error.message);
       setError('Failed to log out. Session cleared locally.');
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       navigate('/login', { replace: true });
     }
   };
@@ -274,7 +277,6 @@ const Dashboard = () => {
     return Number(value).toFixed(2);
   };
 
-  // Calculate total_portfolio_value as initial_investment_amount + profit
   const totalPortfolioValue = (profile?.initial_investment_amount || 0) + (profile?.profit || 0);
 
   return (
@@ -288,53 +290,52 @@ const Dashboard = () => {
         </div>
       ) : (
         <div className="dashboard-content max-w-6xl mx-auto">
-        <motion.div
-          className="flex justify-between items-center mb-10"
-          initial={{ opacity: 0, y: -15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <h1 className="text-2xl md:text-3xl font-bold text-white">
-            Welcome,{' '}
-            <span className="text-white">
-              {profile?.first_name && profile?.last_name
-                ? `${profile.first_name} ${profile.last_name}`
-                : profile?.username || profile?.email || 'User'}
-            </span>
-          </h1>
+          <motion.div
+            className="flex justify-between items-center mb-10"
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
+              Welcome,{' '}
+              <span className="text-white">
+                {profile?.first_name && profile?.last_name
+                  ? `${profile.first_name} ${profile.last_name}`
+                  : profile?.username || profile?.email || 'User'}
+              </span>
+            </h1>
 
-          <div className="flex space-x-3 items-center">
-            {JSON.parse(localStorage.getItem('user'))?.is_staff && (
-              <>
-                <motion.button
-                  onClick={() => navigate('/impersonate')}
-                  className="blue-button px-3 py-1.5 rounded-lg flex items-center"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Impersonate
-                </motion.button>
-                <motion.button
-                  onClick={() => navigate('/add-summary')}
-                  className="blue-button px-3 py-1.5 rounded-lg flex items-center"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Add Summary
-                </motion.button>
-              </>
-            )}
-            <motion.button
-              onClick={handleLogout}
-              className="blue-button px-3 py-1.5 rounded-lg flex items-center"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <LogOut className="mr-1.5 h-4 w-4" /> Logout
-            </motion.button>
-          </div>
-        </motion.div>
-
+            <div className="flex space-x-3 items-center">
+              {profile?.is_staff && (
+                <>
+                  <motion.button
+                    onClick={() => navigate('/impersonate')}
+                    className="blue-button px-3 py-1.5 rounded-lg flex items-center"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Impersonate
+                  </motion.button>
+                  <motion.button
+                    onClick={() => navigate('/add-summary')}
+                    className="blue-button px-3 py-1.5 rounded-lg flex items-center"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Add Summary
+                  </motion.button>
+                </>
+              )}
+              <motion.button
+                onClick={handleLogout}
+                className="blue-button px-3 py-1.5 rounded-lg flex items-center"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <LogOut className="mr-1.5 h-4 w-4" /> Logout
+              </motion.button>
+            </div>
+          </motion.div>
 
           {error && (
             <motion.p
@@ -484,7 +485,6 @@ const Dashboard = () => {
                       <th className="py-3 px-5 text-center text-teal-300 font-medium">Current Balance</th>
                     </tr>
                   </thead>
-
                   <tbody>
                     {summaries.length === 0 ? (
                       <tr>
@@ -531,7 +531,6 @@ const Dashboard = () => {
                       })
                     )}
                   </tbody>
-
                 </table>
               </div>
             </motion.div>

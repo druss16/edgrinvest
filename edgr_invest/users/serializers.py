@@ -44,6 +44,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'dividend_paid',
             'profit',
             'roi_percentage',
+            'is_staff'
         ]
 
     def get_initial_investment_amount(self, obj):
