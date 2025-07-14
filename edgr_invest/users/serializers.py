@@ -23,53 +23,53 @@ class WaitlistSignupSerializer(serializers.ModelSerializer):
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
-class CustomUserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField()
-    initial_investment_amount = serializers.SerializerMethodField()
-    total_portfolio_value = serializers.SerializerMethodField()
-    unrealized_gain = serializers.SerializerMethodField()
-    dividend_paid = serializers.SerializerMethodField()
-    profit = serializers.SerializerMethodField()
-    roi_percentage = serializers.SerializerMethodField()
+# class CustomUserSerializer(serializers.ModelSerializer):
+#     username = serializers.CharField()
+#     initial_investment_amount = serializers.SerializerMethodField()
+#     total_portfolio_value = serializers.SerializerMethodField()
+#     unrealized_gain = serializers.SerializerMethodField()
+#     dividend_paid = serializers.SerializerMethodField()
+#     profit = serializers.SerializerMethodField()
+#     roi_percentage = serializers.SerializerMethodField()
 
-    class Meta:
-        model = CustomUser
-        fields = [
-            'username',
-            'first_name',
-            'last_name',
-            'total_portfolio_value',
-            'initial_investment_amount',
-            'unrealized_gain',
-            'dividend_paid',
-            'profit',
-            'roi_percentage',
-        ]
+#     class Meta:
+#         model = CustomUser
+#         fields = [
+#             'username',
+#             'first_name',
+#             'last_name',
+#             'total_portfolio_value',
+#             'initial_investment_amount',
+#             'unrealized_gain',
+#             'dividend_paid',
+#             'profit',
+#             'roi_percentage',
+#         ]
 
-    def get_initial_investment_amount(self, obj):
-        investments = Investment.objects.filter(user_id=obj.id)
-        return float(sum(investment.amount_invested for investment in investments) or 0)
+#     def get_initial_investment_amount(self, obj):
+#         investments = Investment.objects.filter(user_id=obj.id)
+#         return float(sum(investment.amount_invested for investment in investments) or 0)
 
-    def get_total_portfolio_value(self, obj):
-        investments = Investment.objects.filter(user_id=obj.id)
-        return float(sum(investment.current_value for investment in investments) or 0)
+#     def get_total_portfolio_value(self, obj):
+#         investments = Investment.objects.filter(user_id=obj.id)
+#         return float(sum(investment.current_value for investment in investments) or 0)
 
-    def get_unrealized_gain(self, obj):
-        summaries = InvestmentSummaryDeux.objects.filter(user_id=obj.id)
-        return float(sum(summary.unrealized_gain for summary in summaries) or 0)
+#     def get_unrealized_gain(self, obj):
+#         summaries = InvestmentSummaryDeux.objects.filter(user_id=obj.id)
+#         return float(sum(summary.unrealized_gain for summary in summaries) or 0)
 
-    def get_dividend_paid(self, obj):
-        summaries = InvestmentSummaryDeux.objects.filter(user_id=obj.id)
-        return float(sum(summary.dividend_paid for summary in summaries) or 0)
+#     def get_dividend_paid(self, obj):
+#         summaries = InvestmentSummaryDeux.objects.filter(user_id=obj.id)
+#         return float(sum(summary.dividend_paid for summary in summaries) or 0)
 
-    def get_profit(self, obj):
-        return self.get_unrealized_gain(obj) + self.get_dividend_paid(obj)
+#     def get_profit(self, obj):
+#         return self.get_unrealized_gain(obj) + self.get_dividend_paid(obj)
 
-    def get_roi_percentage(self, obj):
-        initial_investment = self.get_initial_investment_amount(obj)
-        if initial_investment > 0:
-            return round(self.get_profit(obj) / initial_investment * 100, 2)
-        return 0.0
+#     def get_roi_percentage(self, obj):
+#         initial_investment = self.get_initial_investment_amount(obj)
+#         if initial_investment > 0:
+#             return round(self.get_profit(obj) / initial_investment * 100, 2)
+#         return 0.0
 
 class InvestmentSerializer(serializers.ModelSerializer):
     profit_loss = serializers.SerializerMethodField()

@@ -464,21 +464,21 @@ class AddInvestmentSummaryView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]
+# class ProfileView(APIView):
+#     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        try:
-            logger.info(f"Fetching profile for user ID: {request.user.id}")
-            user = CustomUser.objects.get(id=request.user.id)
-            serializer = CustomUserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-            logger.error(f"CustomUser not found for user ID: {request.user.id}")
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            logger.error(f"Error in ProfileView: {str(e)}", exc_info=True)
-            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#     def get(self, request):
+#         try:
+#             logger.info(f"Fetching profile for user ID: {request.user.id}")
+#             user = CustomUser.objects.get(id=request.user.id)
+#             serializer = CustomUserSerializer(user)
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         except CustomUser.DoesNotExist:
+#             logger.error(f"CustomUser not found for user ID: {request.user.id}")
+#             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             logger.error(f"Error in ProfileView: {str(e)}", exc_info=True)
+#             return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class SignUpView(APIView):
     permission_classes = [AllowAny]
