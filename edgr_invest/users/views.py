@@ -372,8 +372,7 @@ from django.shortcuts import redirect
 import csv
 from decimal import Decimal
 from .serializers import (
-    ServiceSerializer, TeamMemberSerializer, WaitlistSignupSerializer,
-    CustomUserSerializer, InvestmentSerializer, InvestmentSummarySerializer,
+    ServiceSerializer, TeamMemberSerializer, WaitlistSignupSerializer, InvestmentSerializer, InvestmentSummarySerializer,
     InvestmentSummaryDeuxSerializer, InvestmentSummaryForm
 )
 from .models import WaitlistSignup, CustomUser, Investment, InvestmentSummary, InvestmentSummaryDeux
@@ -406,8 +405,7 @@ import logging
 from .models import Investment, UserProfile, WaitlistSignup, CustomUser, InvestmentSummary, InvestmentSummaryDeux
 from .forms import InvestmentSummaryForm, UserSettingsForm, WaitlistSignupForm
 from .serializers import (
-    ServiceSerializer, TeamMemberSerializer, WaitlistSignupSerializer,
-    CustomUserSerializer, InvestmentSerializer, InvestmentSummarySerializer,
+    ServiceSerializer, TeamMemberSerializer, WaitlistSignupSerializer, InvestmentSerializer, InvestmentSummarySerializer,
     InvestmentSummaryDeuxSerializer
 )
 
