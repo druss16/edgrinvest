@@ -13,7 +13,7 @@ class TeamMemberSerializer(serializers.Serializer):
 class CustomUserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'email', 'username']
+        fields = ['id', 'email', 'username', 'first_name', 'last_name', 'is_staff']
 
 class WaitlistSignupSerializer(serializers.ModelSerializer):
     class Meta:

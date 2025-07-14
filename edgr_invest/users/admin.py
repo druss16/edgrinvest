@@ -24,16 +24,28 @@ class CustomUserAdmin(UserAdmin):
 
 # users/admin.py
 
-@admin.register(InvestmentSummary)
-class InvestmentSummaryAdmin(admin.ModelAdmin):
-    list_display = ['get_user_email', 'quarter', 'ending_balance']
+from django.contrib import admin
+from .models import UserProfile
 
-    def get_user_email(self, obj):
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user_display', 'balance', 'initial_investment')
+    list_filter = ('balance',)
+    search_fields = ('user_id',)
+    readonly_fields = ('user_id',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('user_id', 'balance', 'initial_investment')
+        }),
+    )
+
+    def user_display(self, obj):
         try:
-            return User.objects.get(id=obj.user_id).email
-        except User.DoesNotExist:
-            return "Unknown"
+            return obj.get_user().username
+        except Exception:
+            return f"User ID {obj.user_id}"
+    user_display.short_description = 'User'
 
-    get_user_email.short_description = "User Email"
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user_id')

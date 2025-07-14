@@ -9,6 +9,7 @@ import PasswordReset from './PasswordReset';
 import PasswordResetConfirm from './PasswordResetConfirm';
 import WaitlistThankYou from './WaitlistThankYou';
 import AddInvestmentSummary from './AddInvestmentSummary';
+import ImpersonateUser from './ImpersonateUser'; // ✅ Import this
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/reset-password" element={<PasswordReset />} />
         <Route path="/reset/:uid/:token" element={<PasswordResetConfirm />} />
         <Route path="/add-summary" element={<AddInvestmentSummary />} />
+        <Route path="/impersonate" element={<ImpersonateUser />} /> {/* ✅ Add this */}
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

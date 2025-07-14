@@ -288,20 +288,42 @@ const Dashboard = () => {
         </div>
       ) : (
         <div className="dashboard-content max-w-6xl mx-auto">
-          <motion.div
-            className="flex justify-between items-center mb-10"
-            initial={{ opacity: 0, y: -15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <h1 className="text-2xl md:text-3xl font-bold text-white">
-              Welcome,{' '}
-              <span className="text-white">
-                {profile?.first_name && profile?.last_name
-                  ? `${profile.first_name} ${profile.last_name}`
-                  : profile?.username || profile?.email || 'User'}
-              </span>
-            </h1>
+        <motion.div
+          className="flex justify-between items-center mb-10"
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
+            Welcome,{' '}
+            <span className="text-white">
+              {profile?.first_name && profile?.last_name
+                ? `${profile.first_name} ${profile.last_name}`
+                : profile?.username || profile?.email || 'User'}
+            </span>
+          </h1>
+
+          <div className="flex space-x-3 items-center">
+            {JSON.parse(localStorage.getItem('user'))?.is_staff && (
+              <>
+                <motion.button
+                  onClick={() => navigate('/impersonate')}
+                  className="blue-button px-3 py-1.5 rounded-lg flex items-center"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Impersonate
+                </motion.button>
+                <motion.button
+                  onClick={() => navigate('/add-summary')}
+                  className="blue-button px-3 py-1.5 rounded-lg flex items-center"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Add Summary
+                </motion.button>
+              </>
+            )}
             <motion.button
               onClick={handleLogout}
               className="blue-button px-3 py-1.5 rounded-lg flex items-center"
@@ -310,7 +332,9 @@ const Dashboard = () => {
             >
               <LogOut className="mr-1.5 h-4 w-4" /> Logout
             </motion.button>
-          </motion.div>
+          </div>
+        </motion.div>
+
 
           {error && (
             <motion.p
