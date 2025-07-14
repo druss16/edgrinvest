@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from users.views import FinalWaitlistApiView, PasswordResetView, PasswordResetConfirmView, ImpersonateUserView
+from users.views import FinalWaitlistApiView, PasswordResetView, PasswordResetConfirmView, ImpersonateUserView, StopImpersonationView
 
 app_name = 'users'
 
@@ -28,4 +28,5 @@ urlpatterns = [
     path('password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     path('users/', views.UserListView.as_view(), name='user-list'),
     path('impersonate/', ImpersonateUserView.as_view(), name='impersonate-user'),
+    path('stop-impersonation/', StopImpersonationView.as_view(), name='stop-impersonation'),
 ]

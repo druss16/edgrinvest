@@ -1038,15 +1038,17 @@ class ImpersonateUserView(APIView):
         if not user_id or not str(user_id).isdigit():
             logger.error(f"Invalid user_id: {user_id}")
             return Response({"error": "Valid user_id required"}, status=status.HTTP_400_BAD_REQUEST)
-        User = get_user_model()
         try:
             target_user = User.objects.get(id=user_id)
+            request.session['original_user_token'] = request.auth.key
             token, created = Token.objects.get_or_create(user=target_user)
             logger.debug(f"Impersonating user {target_user.username} (ID: {target_user.id})")
             return Response({
                 "token": token.key,
                 "impersonated_user_id": target_user.id,
                 "email": target_user.email,
+                "username": target_user.username,
+                "is_staff": target_user.is_staff,
             })
         except User.DoesNotExist:
             logger.error(f"Target user {user_id} not found")
@@ -1055,6 +1057,35 @@ class ImpersonateUserView(APIView):
             logger.error(f"Unexpected error: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+class StopImpersonationView(APIView):
+    def post(self, request):
+        original_user_token = request.session.get('original_user_token')
+        if not original_user_token:
+            logger.error("No original user token found; not impersonating")
+            return Response({"error": "Not impersonating any user"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            original_token = Token.objects.get(key=original_user_token)
+            original_user = original_token.user
+            if not original_user.is_staff:
+                logger.error(f"Original user {original_user.username} is not an admin")
+                return Response({"error": "Original user is not authorized"}, status=status.HTTP_403_FORBIDDEN)
+            request.session.pop('original_user_token', None)
+            logger.debug(f"Restoring original user {original_user.username} (ID: {original_user.id})")
+            return Response({
+                "token": original_token.key,
+                "user": {
+                    "id": original_user.id,
+                    "username": original_user.username,
+                    "email": original_user.email,
+                    "is_staff": original_user.is_staff,
+                }
+            })
+        except Token.DoesNotExist:
+            logger.error("Original user token not found")
+            return Response({"error": "Original user token not found"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 # users/views.py
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
