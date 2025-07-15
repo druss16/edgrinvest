@@ -59,27 +59,31 @@ const Login = () => {
       setError('CSRF token not loaded. Please refresh and try again.');
       return;
     }
+
     try {
-      const response = await api.post('/api/users/login/', credentials, {
+      const response = await api.post('/api/users/login/', {
+        ...credentials,
+        username: credentials.username.toLowerCase(), // 👈 lowercase email
+      }, {
         headers: {
           'X-CSRFToken': csrfToken,
           'Content-Type': 'application/json',
         },
         withCredentials: true,
       });
+
       localStorage.setItem('user', JSON.stringify({
         id: response.data.user_id,
-        email: response.data.username, // Since username is email
-        is_staff: response.data.is_staff
+        email: response.data.username,
+        is_staff: response.data.is_staff,
       }));
       localStorage.setItem('token', response.data.token);
-      console.log('Login successful:', response.data);
       navigate('/dashboard', { replace: true });
     } catch (error) {
       setError(error.response?.data?.error || 'Invalid credentials. Please try again.');
-      console.error('Login error:', error.response?.data || error.message);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center relative">

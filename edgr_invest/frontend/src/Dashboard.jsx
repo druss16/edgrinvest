@@ -20,12 +20,11 @@ const Dashboard = () => {
   const [error, setError] = useState('');
   const roiCounterRef = useRef(null);
   const [currentRoi, setCurrentRoi] = useState(0);
+  const [targetRoi, setTargetRoi] = useState(0); // ✅ Add this
   const navigate = useNavigate();
   const [cumulativeProfitData, setCumulativeProfitData] = useState({ labels: [], data: [] })
   const profitCounterRef = useRef(null);
   const [animatedProfit, setAnimatedProfit] = useState(0);
-
-
 
 
 
@@ -61,6 +60,12 @@ const Dashboard = () => {
           api.get('/api/users/cumulative-profit/', config),
         ]);
 
+        const roiValues = roiYieldRes.data.data || [];
+        const finalRoi = roiValues.length > 0 ? roiValues[roiValues.length - 1] : 0;
+
+        setTargetRoi(finalRoi); 
+
+
         const userData = {
           username: profileRes.data.username,
           email: profileRes.data.email,
@@ -75,12 +80,20 @@ const Dashboard = () => {
           is_staff: profileRes.data.is_staff,
         };
 
+
+
+
         setProfile(userData);
         localStorage.setItem('user', JSON.stringify(userData));
 
         const sortedSummaries = [...summariesRes.data].sort((a, b) => {
           const parseQuarter = (q) => new Date(`${q} 1`);
           return parseQuarter(a.quarter) - parseQuarter(b.quarter);
+        });
+
+        setRoiData({
+          labels: roiYieldRes.data.labels,
+          data: roiValues,
         });
 
         setSummaries(sortedSummaries);
@@ -120,27 +133,32 @@ const Dashboard = () => {
       }
     };
 
+
+
     fetchData();
   }, [navigate]);
 
+
   useEffect(() => {
-    if (roiCounterRef.current && profile?.roi_percentage) {
-      const targetROI = parseFloat(profile.roi_percentage);
+    if (roiCounterRef.current) {
       let current = 0;
-      const increment = targetROI / 100;
-      const updateCounter = () => {
+      const increment = targetRoi / 100;
+
+      const animate = () => {
         current += increment;
-        if ((increment > 0 && current >= targetROI) || (increment < 0 && current <= targetROI)) {
-          current = targetROI;
+        if ((increment > 0 && current >= targetRoi) || (increment < 0 && current <= targetRoi)) {
+          current = targetRoi;
         }
         setCurrentRoi(current.toFixed(2));
-        if (current !== targetROI) {
-          requestAnimationFrame(updateCounter);
+        if (current !== targetRoi) {
+          requestAnimationFrame(animate);
         }
       };
-      updateCounter();
+
+      animate();
     }
-  }, [profile]);
+  }, [targetRoi]);
+
 
   useEffect(() => {
     if (profitCounterRef.current && profile?.profit != null) {
@@ -306,6 +324,7 @@ const Dashboard = () => {
           label: (ctx) => `$${ctx.parsed.y.toLocaleString()}`,
         },
       },
+
     },
     scales: {
       x: {
