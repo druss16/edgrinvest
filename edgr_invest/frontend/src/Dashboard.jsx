@@ -22,6 +22,9 @@ const Dashboard = () => {
   const [currentRoi, setCurrentRoi] = useState(0);
   const navigate = useNavigate();
 
+
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,16 +35,13 @@ const Dashboard = () => {
           return;
         }
         const config = { headers: { Authorization: `Token ${token}` } };
-        const [profileRes, summariesRes, roiGrowthRes] = await Promise.all([
-          api.get('/api/users/profile/', config).catch(err => {
-            throw new Error(`Profile fetch failed: ${err.message}`);
-          }),
-          api.get('/api/users/summaries-deux/', config).catch(err => {
-            throw new Error(`Summaries fetch failed: ${err.message}`);
-          }),
-          api.get('/api/users/roi-growth/', config).catch(err => {
-            throw new Error(`ROI Growth fetch failed: ${err.message}`);
-          }),
+        const [profileRes, summariesRes, roiGrowthRes, firstInvestmentRes, roiYieldRes] = await Promise.all([
+          api.get('/api/users/profile/', config),
+          api.get('/api/users/summaries-deux/', config),
+          api.get('/api/users/roi-growth/', config),
+          api.get('/api/users/investment-first/', config),
+          api.get('/api/users/roi-yield/', config),  // 👈 use this instead
+
         ]);
 
         const userData = {
@@ -61,25 +61,36 @@ const Dashboard = () => {
         setProfile(userData);
         localStorage.setItem('user', JSON.stringify(userData)); // Sync localStorage
 
-        setSummaries(summariesRes.data);
+        // Sort summaries by actual quarter date
+        const sortedSummaries = [...summariesRes.data].sort((a, b) => {
+          const parseQuarter = (q) => new Date(`${q} 1`); // "July 2025" → Date("July 1, 2025")
+          return parseQuarter(a.quarter) - parseQuarter(b.quarter);
+        });
 
-        const accountLabels = ['Initial', ...summariesRes.data.map(s => s.quarter)];
+        setSummaries(sortedSummaries);
+
+        const firstInvestment = parseFloat(firstInvestmentRes.data.first_amount_invested || 0);
+
+        // Use firstInvestment in your chart setup:
+        const accountLabels = ['Initial', ...sortedSummaries.map(s => s.quarter)];
         const accountValues = [
-          profileRes.data.initial_investment_amount || 0,
-          ...summariesRes.data.map((s, index) =>
-            index === summariesRes.data.length - 1
-              ? (profileRes.data.initial_investment_amount || 0) + (profileRes.data.profit || 0)
+          firstInvestment,
+          ...sortedSummaries.map((s, index) =>
+            index === sortedSummaries.length - 1
+              ? firstInvestment + (profileRes.data.profit || 0)
               : s.ending_balance
           ),
         ];
+
         setAccountValueData({
           labels: accountLabels,
           data: accountValues,
         });
 
+
         setRoiData({
-          labels: roiGrowthRes.data.labels,
-          data: roiGrowthRes.data.data,
+          labels: roiYieldRes.data.labels,
+          data: roiYieldRes.data.data,
         });
 
         setLoading(false);
