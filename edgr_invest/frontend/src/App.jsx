@@ -10,6 +10,8 @@ import WaitlistThankYou from './WaitlistThankyou';
 import PasswordResetConfirm from './PasswordResetConfirm';
 import AddInvestmentSummary from './AddInvestmentSummary';
 import ImpersonateUser from './ImpersonateUser'; // ✅ Import this
+import UserSummary from './UserSummary';
+
 
 import './App.css';
 
@@ -32,6 +34,7 @@ function App() {
         <Route path="/reset/:uid/:token" element={<PasswordResetConfirm />} />
         <Route path="/add-summary" element={<AddInvestmentSummary />} />
         <Route path="/impersonate" element={<ImpersonateUser />} /> {/* ✅ Add this */}
+        <Route path="/admin/user-summary" element={<UserSummary />} />
         <Route path="/" element={<Index />} />
       </Routes>
     </BrowserRouter>

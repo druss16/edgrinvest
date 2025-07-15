@@ -10,6 +10,8 @@ import PasswordResetConfirm from './PasswordResetConfirm';
 import WaitlistThankYou from './WaitlistThankYou';
 import AddInvestmentSummary from './AddInvestmentSummary';
 import ImpersonateUser from './ImpersonateUser'; // ✅ Import this
+import UserSummary from './UserSummary';
+
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -25,6 +27,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/reset/:uid/:token" element={<PasswordResetConfirm />} />
         <Route path="/add-summary" element={<AddInvestmentSummary />} />
         <Route path="/impersonate" element={<ImpersonateUser />} /> {/* ✅ Add this */}
+        <Route path="/admin/user-summary" element={<UserSummary />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
