@@ -469,16 +469,14 @@ class ProfileView(APIView):
 
     def get(self, request):
         try:
-            logger.info(f"Fetching profile for user ID: {request.user.id}")
             user = CustomUser.objects.get(id=request.user.id)
             serializer = CustomUserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except CustomUser.DoesNotExist:
-            logger.error(f"CustomUser not found for user ID: {request.user.id}")
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            logger.error(f"Error in ProfileView: {str(e)}", exc_info=True)
-            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": f"Server error: {str(e)}"}, status=500)
+
 
 class SignUpView(APIView):
     permission_classes = [AllowAny]
@@ -551,6 +549,73 @@ class RoiGrowthView(APIView):
         except Exception as e:
             logger.error(f"Error in RoiGrowthView: {str(e)}", exc_info=True)
             return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class QuarterlyYieldView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching cumulative quarterly yield for user ID: {request.user.id}")
+            summaries = InvestmentSummaryDeux.objects.filter(user_id=request.user.id).order_by('date_created')
+
+            labels = ["Initial"]
+            data = [0.0]  # Start with 0% yield
+
+            cumulative_roi = 0.0
+
+            for summary in summaries:
+                principal = float(summary.beginning_balance or 0)
+                dividend = float(summary.dividend_amount or 0)
+
+                quarterly_yield = (dividend / principal * 100) if principal > 0 else 0
+                cumulative_roi += quarterly_yield
+
+                labels.append(summary.quarter)
+                data.append(round(cumulative_roi, 2))
+
+            return Response({"labels": labels, "data": data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error in QuarterlyYieldView: {str(e)}", exc_info=True)
+            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from users.models import InvestmentSummaryDeux
+import logging
+
+logger = logging.getLogger(__name__)
+
+class CumulativeProfitView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            logger.info(f"Fetching cumulative profit growth for user ID: {request.user.id}")
+            summaries = InvestmentSummaryDeux.objects.filter(user_id=request.user.id).order_by('date_created')
+
+            labels = ["Initial"]
+            data = [0.0]  # Start with zero profit
+
+            cumulative_profit = 0.0
+
+            for summary in summaries:
+                profit = float(summary.dividend_paid or 0) + float(summary.unrealized_gain or 0)
+                cumulative_profit += profit
+
+                labels.append(summary.quarter)
+                data.append(round(cumulative_profit, 2))
+
+            return Response({"labels": labels, "data": data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error in CumulativeProfitView: {str(e)}", exc_info=True)
+            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 class ServiceListView(APIView):
     permission_classes = [AllowAny]
@@ -1086,9 +1151,70 @@ class StopImpersonationView(APIView):
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+from .models import InvestmentSummaryDeux
+from .serializers import InvestmentSummaryDeuxSerializer
+from django.shortcuts import get_object_or_404
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def get_latest_summary(request, user_id):
+    try:
+        latest = InvestmentSummaryDeux.objects.filter(user_id=user_id).order_by('-id').first()
+        if not latest:
+            return Response({}, status=200)
+        serializer = InvestmentSummaryDeuxSerializer(latest)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def get_all_summaries(request, user_id):
+    summaries = InvestmentSummaryDeux.objects.filter(user_id=user_id).order_by('-id')
+    serializer = InvestmentSummaryDeuxSerializer(summaries, many=True)
+    return Response(serializer.data)
+
+from .models import Investment
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+from django.db.models import Sum
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def get_user_investment(request, user_id):
+    total = Investment.objects.filter(user_id=user_id).aggregate(total_initial=Sum('amount_invested'))['total_initial'] or 0
+    return Response({
+        'initial_investment': str(total)
+    })
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from users.models import Investment
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_first_investment(request):
+    try:
+        first = Investment.objects.filter(user_id=request.user.id).order_by('id').first()
+        amount = first.amount_invested if first else 0
+        return Response({'first_amount_invested': str(amount)})
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+
+
 # users/views.py
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
+
 
 @api_view(['GET'])
 @permission_classes([])

@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from users.views import FinalWaitlistApiView, PasswordResetView, PasswordResetConfirmView, ImpersonateUserView, StopImpersonationView
+from users.views import CumulativeProfitView, QuarterlyYieldView, get_first_investment, get_user_investment, get_all_summaries, get_latest_summary, FinalWaitlistApiView, PasswordResetView, PasswordResetConfirmView, ImpersonateUserView, StopImpersonationView
 
 app_name = 'users'
 
@@ -29,4 +29,16 @@ urlpatterns = [
     path('users/', views.UserListView.as_view(), name='user-list'),
     path('impersonate/', ImpersonateUserView.as_view(), name='impersonate-user'),
     path('stop-impersonation/', StopImpersonationView.as_view(), name='stop-impersonation'),
+    path('latest-summary/<int:user_id>/', get_latest_summary, name='latest-summary'),
+    path('all-summaries/<int:user_id>/', get_all_summaries, name='get-all-summaries'),
+    path('user-investment/<int:user_id>/', get_user_investment, name='get-user-investment'),
+    path('investment-first/', get_first_investment, name='get_first_investment'),
+    path('roi-yield/', QuarterlyYieldView.as_view(), name='quarterly-yield'),
+    path('cumulative-profit/', CumulativeProfitView.as_view(), name='cumulative-profit'),
+
+
+
+
+
+
 ]

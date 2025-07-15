@@ -21,6 +21,10 @@ const Dashboard = () => {
   const roiCounterRef = useRef(null);
   const [currentRoi, setCurrentRoi] = useState(0);
   const navigate = useNavigate();
+  const [cumulativeProfitData, setCumulativeProfitData] = useState({ labels: [], data: [] })
+  const profitCounterRef = useRef(null);
+  const [animatedProfit, setAnimatedProfit] = useState(0);
+
 
 
 
@@ -34,14 +38,27 @@ const Dashboard = () => {
           navigate('/login', { replace: true });
           return;
         }
-        const config = { headers: { Authorization: `Token ${token}` } };
-        const [profileRes, summariesRes, roiGrowthRes, firstInvestmentRes, roiYieldRes] = await Promise.all([
+
+        const config = {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        };
+
+        const [
+          profileRes,
+          summariesRes,
+          roiGrowthRes,
+          firstInvestmentRes,
+          roiYieldRes,
+          cumulativeProfitRes,
+        ] = await Promise.all([
           api.get('/api/users/profile/', config),
           api.get('/api/users/summaries-deux/', config),
           api.get('/api/users/roi-growth/', config),
           api.get('/api/users/investment-first/', config),
-          api.get('/api/users/roi-yield/', config),  // 👈 use this instead
-
+          api.get('/api/users/roi-yield/', config),
+          api.get('/api/users/cumulative-profit/', config),
         ]);
 
         const userData = {
@@ -55,15 +72,14 @@ const Dashboard = () => {
           dividend_paid: profileRes.data.dividend_paid,
           profit: profileRes.data.profit,
           roi_percentage: profileRes.data.roi_percentage,
-          is_staff: profileRes.data.is_staff, // Include is_staff
+          is_staff: profileRes.data.is_staff,
         };
 
         setProfile(userData);
-        localStorage.setItem('user', JSON.stringify(userData)); // Sync localStorage
+        localStorage.setItem('user', JSON.stringify(userData));
 
-        // Sort summaries by actual quarter date
         const sortedSummaries = [...summariesRes.data].sort((a, b) => {
-          const parseQuarter = (q) => new Date(`${q} 1`); // "July 2025" → Date("July 1, 2025")
+          const parseQuarter = (q) => new Date(`${q} 1`);
           return parseQuarter(a.quarter) - parseQuarter(b.quarter);
         });
 
@@ -71,7 +87,6 @@ const Dashboard = () => {
 
         const firstInvestment = parseFloat(firstInvestmentRes.data.first_amount_invested || 0);
 
-        // Use firstInvestment in your chart setup:
         const accountLabels = ['Initial', ...sortedSummaries.map(s => s.quarter)];
         const accountValues = [
           firstInvestment,
@@ -87,19 +102,24 @@ const Dashboard = () => {
           data: accountValues,
         });
 
-
         setRoiData({
           labels: roiYieldRes.data.labels,
           data: roiYieldRes.data.data,
         });
 
+        setCumulativeProfitData({
+          labels: cumulativeProfitRes.data.labels,
+          data: cumulativeProfitRes.data.data,
+        });
+
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching dashboard data:', error);
         setError(error.message || 'Failed to load dashboard data.');
         setLoading(false);
       }
     };
+
     fetchData();
   }, [navigate]);
 
@@ -121,6 +141,28 @@ const Dashboard = () => {
       updateCounter();
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (profitCounterRef.current && profile?.profit != null) {
+      const targetProfit = parseFloat(profile.profit);
+      let current = 0;
+      const increment = targetProfit / 100;
+
+      const updateProfit = () => {
+        current += increment;
+        if ((increment > 0 && current >= targetProfit) || (increment < 0 && current <= targetProfit)) {
+          current = targetProfit;
+        }
+        setAnimatedProfit(current.toFixed(2));
+        if (current !== targetProfit) {
+          requestAnimationFrame(updateProfit);
+        }
+      };
+
+      updateProfit();
+    }
+  }, [profile]);
+
 
   const handleLogout = async () => {
     try {
@@ -215,6 +257,73 @@ const Dashboard = () => {
       },
     },
   };
+
+  const cumulativeProfitChartData = {
+    labels: cumulativeProfitData.labels,
+    datasets: [
+      {
+        label: 'Cumulative Profit',
+        data: cumulativeProfitData.data,
+        fill: true,
+        tension: 0.5,
+        borderColor: 'rgb(255, 159, 64)', // Orange line
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+          gradient.addColorStop(0, 'rgba(255, 159, 64, 0.4)'); // Light orange
+          gradient.addColorStop(1, 'rgba(255, 159, 64, 0.1)');
+          return gradient;
+        },
+        pointRadius: 5,
+        pointHoverRadius: 8,
+        pointBackgroundColor: '#ff9f40',
+        pointHoverBackgroundColor: '#ffa94d',
+        pointHoverBorderColor: '#fff',
+        borderWidth: 3,
+      },
+    ],
+  };
+
+
+  const cumulativeProfitChartOptions = {
+    responsive: true,
+    animation: {
+      duration: 2000,
+      easing: 'easeOutElastic',
+    },
+    layout: { padding: { top: 50, bottom: 30 } },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(30, 30, 47, 0.9)',
+        titleColor: '#fff',
+        bodyColor: '#ff9f40', // Orange tooltip text
+        borderColor: '#ffa94d',
+        borderWidth: 2,
+        cornerRadius: 8,
+        padding: 12,
+        callbacks: {
+          label: (ctx) => `$${ctx.parsed.y.toLocaleString()}`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)', lineWidth: 1 },
+        ticks: { color: '#94a3b8', font: { size: 14 } },
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(255, 255, 255, 0.05)', lineWidth: 1 },
+        ticks: {
+          color: '#94a3b8',
+          font: { size: 14 },
+          callback: (val) => `$${val.toLocaleString()}`,
+        },
+      },
+    },
+  };
+
 
   const roiChartData = {
     labels: roiData.labels,
@@ -455,6 +564,36 @@ const Dashboard = () => {
                 <Line data={accountValueChartData} options={accountValueChartOptions} />
               </div>
             </motion.div>
+
+            {/* Cumulative Profit Chart */}
+            <motion.div
+              className="card-glass rounded-lg p-5"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+            >
+              <div className="mb-5">
+                <h3 className="text-base uppercase font-semibold text-gray-300">
+                  Cumulative Profit
+                </h3>
+                <motion.div
+                  ref={profitCounterRef}
+                  className="text-3xl font-bold text-neon"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  ${Number(animatedProfit).toLocaleString()}
+                </motion.div>
+                <div className="text-xs text-green-400">Total Compounded Profit to Date</div>
+              </div>
+
+
+              <div className="chart-container">
+                <Line data={cumulativeProfitChartData} options={cumulativeProfitChartOptions} />
+              </div>
+            </motion.div>
+
 
             {/* Quarterly ROI Growth Chart */}
             <motion.div
