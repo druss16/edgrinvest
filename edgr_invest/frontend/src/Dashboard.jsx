@@ -498,24 +498,24 @@ const Dashboard = () => {
                   Principal Investment
                 </h3>
                 <div className="text-3xl font-bold text-neon">
-                  ${profile?.initial_investment_amount?.toLocaleString() || '0.00'}
+                  {profile?.initial_investment_amount?.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="mt-3 space-y-1.5 text-base">
                   <p>
                     <span className="text-white">Initial Investment:</span>{' '}
-                    <span className="text-gray-50">${profile?.initial_investment_amount?.toLocaleString() || '0.00'}</span>
+                    <span className="text-gray-50">{profile?.initial_investment_amount?.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </p>
                   <p>
                     <span className="text-white">Unrealized Gain:</span>{' '}
-                    <span className="text-green-200">${profile?.unrealized_gain?.toLocaleString() || '0.00'}</span>
+                    <span className="text-green-200">{profile?.unrealized_gain?.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </p>
                   <p>
                     <span className="text-white">Dividend(s) Paid:</span>{' '}
-                    <span className="text-yellow-50">${profile?.dividend_paid?.toLocaleString() || '0.00'}</span>
+                    <span className="text-yellow-50">{profile?.dividend_paid?.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </p>
                   <p>
                     <span className="text-white">Total Profit:</span>{' '}
-                    <span className="text-green-200">${profile?.profit?.toLocaleString() || '0.00'}</span>
+                    <span className="text-green-200">{profile?.profit?.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </p>
                 </div>
               </motion.div>
@@ -560,10 +560,10 @@ const Dashboard = () => {
                     Total Account Value
                   </h3>
                   <div className="text-3xl font-bold text-neon">
-                    ${totalPortfolioValue.toLocaleString() || '0.00'}
+                    {totalPortfolioValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                   <div className="text-xs text-green-400">
-                    ${profile?.profit?.toLocaleString() || '0.00'} ({currentRoi}%)
+                    {profile?.profit?.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({currentRoi}%)
                   </div>
                 </div>
                 <div className="space-x-1.5">
@@ -602,7 +602,7 @@ const Dashboard = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  ${Number(animatedProfit).toLocaleString()}
+                  {Number(animatedProfit).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </motion.div>
                 <div className="text-xs text-green-400">Total Compounded Profit to Date</div>
               </div>
