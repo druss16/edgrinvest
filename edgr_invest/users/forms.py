@@ -37,18 +37,22 @@ class InvestmentAdminForm(forms.ModelForm):
         model = Investment
         fields = ['user_id', 'amount_invested', 'start_date']
 
-    def clean_user_id(self):
-        return self.cleaned_data['user_id'].id
-
     def clean(self):
         cleaned_data = super().clean()
         amount_invested = cleaned_data.get('amount_invested')
 
-        # Ensure amount_invested is non-negative
         if amount_invested is not None and amount_invested < 0:
             raise forms.ValidationError({'amount_invested': 'Amount invested cannot be negative.'})
 
         return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.user_id = self.cleaned_data['user_id'].id  # Store raw int
+        if commit:
+            instance.save()
+        return instance
+
 
 class UserSettingsForm(forms.ModelForm):
     password = forms.CharField(label='New Password', widget=forms.PasswordInput(), required=False)
