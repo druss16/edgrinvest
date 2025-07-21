@@ -99,16 +99,16 @@ const Dashboard = () => {
         setSummaries(sortedSummaries);
 
         const firstInvestment = parseFloat(firstInvestmentRes.data.first_amount_invested || 0);
-
-        const accountLabels = ['Initial', ...sortedSummaries.map(s => s.quarter)];
-        const accountValues = [
-          firstInvestment,
-          ...sortedSummaries.map((s, index) =>
-            index === sortedSummaries.length - 1
-              ? firstInvestment + (profileRes.data.profit || 0)
-              : s.ending_balance
-          ),
-        ];
+        
+        // With this:
+        let cumulativeUnrealized = 0;
+        const accountLabels = sortedSummaries.map(s => s.quarter);
+        const accountValues = sortedSummaries.map((s) => {
+          const principal = parseFloat(s.beginning_balance || 0);
+          const unrealized = parseFloat(s.unrealized_gain || 0);
+          cumulativeUnrealized += unrealized;
+          return principal + cumulativeUnrealized;
+        });
 
         setAccountValueData({
           labels: accountLabels,
@@ -208,6 +208,7 @@ const Dashboard = () => {
       navigate('/login', { replace: true });
     }
   };
+
 
   const accountValueChartData = {
     labels: accountValueData.labels,
