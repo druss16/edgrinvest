@@ -6,11 +6,15 @@ import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
 import logo from './assets/logo.png';
 
+
+
 const Login = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '', remember: false });
   const [error, setError] = useState('');
   const [csrfToken, setCsrfToken] = useState('');
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -107,30 +111,59 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="username" className="text-white">Email</Label>
-            <Input
+            <input
               id="username"
               name="username"
               type="text"
               value={credentials.username}
               onChange={handleChange}
-              className="bg-slate-800 text-white border-slate-600"
+              className="bg-slate-800 text-white border border-slate-600 rounded-md w-full px-4 py-2"
               placeholder="Enter your email"
               required
             />
           </div>
           <div>
             <Label htmlFor="password" className="text-white">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={credentials.password}
-              onChange={handleChange}
-              className="bg-slate-800 text-white border-slate-600"
-              placeholder="Enter your password"
-              required
-            />
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                value={credentials.password}
+                onChange={handleChange}
+                className="bg-slate-800 text-white border border-slate-600 rounded-md w-full px-4 py-2 pr-12"
+                placeholder="Enter your password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.038.158-2.038.45-2.982M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M3 3l18 18" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
+
+
+
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <input
