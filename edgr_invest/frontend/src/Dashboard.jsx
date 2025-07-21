@@ -98,17 +98,22 @@ const Dashboard = () => {
 
         setSummaries(sortedSummaries);
 
-        const firstInvestment = parseFloat(firstInvestmentRes.data.first_amount_invested || 0);
-        
-        // With this:
-        let cumulativeUnrealized = 0;
-        const accountLabels = sortedSummaries.map(s => s.quarter);
-        const accountValues = sortedSummaries.map((s) => {
-          const principal = parseFloat(s.beginning_balance || 0);
-          const unrealized = parseFloat(s.unrealized_gain || 0);
-          cumulativeUnrealized += unrealized;
-          return principal + cumulativeUnrealized;
+        const initialInvestment = parseFloat(profileRes.data.initial_investment_amount || 0);
+        const accountLabels = ['Initial Investment', ...sortedSummaries.map(s => s.quarter)];
+
+        let runningTotal = initialInvestment;
+        const accountValues = [initialInvestment, ...sortedSummaries.map(summary => {
+          const unrealized = parseFloat(summary.unrealized_gain || 0);
+          const dividend = parseFloat(summary.dividend_amount || 0);
+          runningTotal += unrealized + dividend;
+          return runningTotal;
+        })];
+
+        setAccountValueData({
+          labels: accountLabels,
+          data: accountValues,
         });
+
 
         setAccountValueData({
           labels: accountLabels,
