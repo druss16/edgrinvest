@@ -25,7 +25,7 @@ from .models import UserProfile, Investment
 CustomUser = get_user_model()
 
 class InvestmentAdminForm(forms.ModelForm):
-    user_id = forms.ModelChoiceField(
+    user = forms.ModelChoiceField(
         queryset=CustomUser.objects.all(),
         label='User',
         help_text='Select a user by username.',
@@ -34,20 +34,11 @@ class InvestmentAdminForm(forms.ModelForm):
 
     class Meta:
         model = Investment
-        fields = ['user_id', 'amount_invested', 'start_date']
-
-    def clean(self):
-        cleaned_data = super().clean()
-        amount_invested = cleaned_data.get('amount_invested')
-
-        if amount_invested is not None and amount_invested < 0:
-            raise forms.ValidationError({'amount_invested': 'Amount invested cannot be negative.'})
-
-        return cleaned_data
+        fields = ['user', 'amount_invested', 'start_date']
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        instance.user_id = self.cleaned_data['user_id'].id  # Store the ID manually
+        instance.user_id = self.cleaned_data['user'].id  # store user_id manually
         if commit:
             instance.save()
         return instance

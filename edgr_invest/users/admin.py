@@ -38,7 +38,7 @@ class InvestmentAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('user_id', 'amount_invested', 'start_date')
+            'fields': ('user', 'amount_invested', 'start_date')
         }),
     )
 
