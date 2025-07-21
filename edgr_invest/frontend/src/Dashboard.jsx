@@ -633,6 +633,8 @@ const Dashboard = () => {
               </div>
             </motion.div>
 
+
+            {/* Investment Summary Table */}
             {/* Investment Summary Table */}
             <motion.div
               className="card-glass rounded-lg p-5"
@@ -662,47 +664,59 @@ const Dashboard = () => {
                         </td>
                       </tr>
                     ) : (
-                      summaries.map((summary, index) => {
-                        const isLatestQuarter = index === summaries.length - 1;
-                        const endingBalance = isLatestQuarter
-                          ? (profile?.initial_investment_amount || 0) + (profile?.profit || 0)
-                          : summary.ending_balance;
+                      (() => {
+                        let cumulativeUnrealized = 0;
 
-                        return (
-                          <motion.tr
-                            key={summary.id}
-                            className="border-b border-gray-700 table-row-hover"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <td className="py-3 px-5 text-white text-center">{summary.quarter}</td>
-                            <td className="py-3 px-5 text-green-400 text-center">
-                              {Number(summary.beginning_balance).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                            </td>
-                            <td className="py-3 px-5 text-yellow-400 text-center">
-                              {formatNumber(summary.dividend_percent)}%
-                            </td>
-                            <td className="py-3 px-5 text-yellow-400 text-center">
-                              {Number(summary.dividend_amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                            </td>
-                            <td className="py-3 px-5 text-green-400 text-center">
-                              {Number(summary.unrealized_gain).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                            </td>
-                            <td className="py-3 px-5 text-yellow-400 text-center">
-                              {Number(summary.dividend_paid).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                            </td>
-                            <td className="py-3 px-5 text-green-400 text-center">
-                              {Number(endingBalance).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                            </td>
-                          </motion.tr>
-                        );
-                      })
+                        return summaries.map((summary) => {
+                          const principal = parseFloat(summary.beginning_balance || 0);
+                          const dividend = parseFloat(summary.dividend_amount || 0);
+                          const unrealized = parseFloat(summary.unrealized_gain || 0);
+                          const paid = parseFloat(summary.dividend_paid || 0);
+                          const divPct = formatNumber(summary.dividend_percent);
+
+                          // Accumulate unrealized gain
+                          cumulativeUnrealized += unrealized;
+
+                          const currentBalance = principal + cumulativeUnrealized;
+
+                          return (
+                            <motion.tr
+                              key={summary.id}
+                              className="border-b border-gray-700 table-row-hover"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              <td className="py-3 px-5 text-white text-center">{summary.quarter}</td>
+                              <td className="py-3 px-5 text-green-400 text-center">
+                                {principal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                              </td>
+                              <td className="py-3 px-5 text-yellow-400 text-center">{divPct}%</td>
+                              <td className="py-3 px-5 text-yellow-400 text-center">
+                                {dividend.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                              </td>
+                              <td className="py-3 px-5 text-green-400 text-center">
+                                {unrealized.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                              </td>
+                              <td className="py-3 px-5 text-yellow-400 text-center">
+                                {paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                              </td>
+                              <td className="py-3 px-5 text-green-400 text-center">
+                                {currentBalance.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                              </td>
+                            </motion.tr>
+                          );
+                        });
+                      })()
                     )}
                   </tbody>
+
+
                 </table>
               </div>
             </motion.div>
+
+
           </div>
         </div>
       )}
