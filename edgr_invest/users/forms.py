@@ -27,7 +27,6 @@ CustomUser = get_user_model()
 class InvestmentAdminForm(forms.ModelForm):
     user_id = forms.ModelChoiceField(
         queryset=CustomUser.objects.all(),
-        to_field_name='id',
         label='User',
         help_text='Select a user by username.',
         empty_label=None
@@ -48,7 +47,7 @@ class InvestmentAdminForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        instance.user_id = self.cleaned_data['user_id'].id  # Store raw int
+        instance.user_id = self.cleaned_data['user_id'].id  # Store the ID manually
         if commit:
             instance.save()
         return instance
