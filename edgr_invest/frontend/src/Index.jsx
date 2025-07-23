@@ -54,7 +54,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="w-full overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-black/95 backdrop-blur-md z-50 border-b border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

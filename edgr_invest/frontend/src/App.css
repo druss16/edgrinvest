@@ -2,11 +2,11 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 1rem;
-  text-align: center;
-  box-sizing: border-box;
   width: 100%;
+  box-sizing: border-box;
   overflow-x: hidden;
 }
+
 
 .logo {
   height: 6em;
@@ -43,3 +43,10 @@
 .read-the-docs {
   color: #888;
 }
+
+html, body {
+  overflow-x: hidden;
+  position: relative;
+  max-width: 100%;
+}
+
