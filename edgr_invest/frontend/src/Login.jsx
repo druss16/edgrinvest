@@ -103,7 +103,7 @@ const Login = () => {
         <img
           src={logo}
           alt="EdgeRin Investment"
-          className="h-40 w-auto mx-auto mb-10 drop-shadow-[0_0_22px_rgba(20,184,166,1)] shadow-xl"
+          className="h-40 w-auto mx-auto mb-10 drop-shadow-[0_0_22px_rgba(255,255,255,0.9)] shadow-xl"
           style={{ height: '168px' }}
         />
         <h2 className="text-3xl font-bold mb-2 text-center">Login to Your Account</h2>
